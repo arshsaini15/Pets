@@ -1,0 +1,48 @@
+.profile-page {
+    text-align: center;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+}
+
+.welcome-message {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.profile-image {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 10px auto;
+    border: 2px solid #ddd;
+}
+
+.profile-placeholder {
+    width: 200px;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: #f0f0f0;
+    color: #999;
+    font-size: 16px;
+}
+
+.loading, .error {
+    font-size: 18px;
+    color: #666;
+    margin-top: 20px;
+}
+.area{
+    width: 400px;
+    height: 100px;
+}
+
+.linkTag{
+    color: black;
+    text-decoration: none;
+    font-size: 20px;
+}

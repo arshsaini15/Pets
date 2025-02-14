@@ -1,0 +1,48 @@
+# Node modules
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Environment variables
+.env
+.env.local
+.env.example
+
+# Build and production files
+dist/
+build/
+
+# Logs
+logs/
+*.log
+
+# Database and cache
+*.sqlite
+dump.rdb
+
+# VSCode and system files
+.vscode/
+.DS_Store
+Thumbs.db
+
+# React build files
+/public/static/
+/public/build/
+
+# Coverage and test files
+coverage/
+jest-cache/
+
+# MongoDB data
+db_data/
+
+# Ignore uploads and user-generated content
+/uploads/
+
+# Socket.io temporary files
+socket.io/
+
+# Miscellaneous
+.idea/
+*.swp
+*.swo
