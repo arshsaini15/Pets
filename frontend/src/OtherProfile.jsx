@@ -1,45 +1,46 @@
-import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import axios from "axios";
-import Navbar from "./NavBar.jsx";
-import "./OtherProfile.css";
+import { useState, useEffect } from "react"
+import { useParams, useNavigate } from "react-router-dom"
+import axios from "axios"
+import Navbar from "./NavBar.jsx"
+import "./OtherProfile.css"
 
 const OtherProfile = () => {
-    const { userId } = useParams();
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [userProfile, setUserProfile] = useState(null);
-    const [userPosts, setUserPosts] = useState([]);
+    const { userId } = useParams()
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null)
+    const [userProfile, setUserProfile] = useState(null)
+    const [userPosts, setUserPosts] = useState([])
+    const navigate = useNavigate()
 
     useEffect(() => {
         const fetchUserProfile = async () => {
             try {
-                const token = localStorage.getItem("token");
+                const token = localStorage.getItem("token")
 
                 const profileResponse = await axios.get(`http://localhost:8000/api/v1/users/${userId}`, {
                     headers: { Authorization: `Bearer ${token}` },
                     withCredentials: true,
-                });
+                })
 
                 const postsResponse = await axios.get(`http://localhost:8000/api/v1/users/getuserposts/${userId}`, {
                     headers: { Authorization: `Bearer ${token}` },
                     withCredentials: true,
-                });
+                })
 
-                setUserProfile(profileResponse.data);
-                setUserPosts(postsResponse.data);
+                setUserProfile(profileResponse.data)
+                setUserPosts(postsResponse.data)
             } catch (error) {
-                setError("Failed to load the profile. Please try again.");
+                setError("Failed to load the profile. Please try again.")
             } finally {
-                setLoading(false);
+                setLoading(false)
             }
         };
 
-        fetchUserProfile();
-    }, [userId]);
+        fetchUserProfile()
+    }, [userId])
 
-    if (loading) return <p>Loading profile...</p>;
-    if (error) return <p className="error">{error}</p>;
+    if (loading) return <p>Loading profile...</p>
+    if (error) return <p className="error">{error}</p>
 
     return (
         <div>
@@ -52,7 +53,12 @@ const OtherProfile = () => {
                         <p><strong>Bio:</strong> {userProfile.bio}</p>
                         <p><strong>Connections:</strong> {userProfile.connections.length}</p>
                         <div className="other-profile-actions">
-                            <button className="message-btn">Message</button>
+                        <button
+                            onClick={() => navigate(`/chat/${userId}`)}
+                            className="message-btn"
+                            >
+                            Message
+                        </button>
                         </div>
 
                         <div className="user-posts">

@@ -29,5 +29,5 @@ export const chatSave = asyncHandler(async (req, res) => {
     chat.messages.push(newMessage)
     await chat.save()
 
-    res.status(200).json({ message: "Message saved successfully", chat });
+    res.status(200).json({ message: "Message saved successfully", chat })
 })

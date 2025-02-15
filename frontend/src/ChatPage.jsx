@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useParams } from "react-router-dom"
 import { socket } from "./utils/socket.js"
 import axios from "axios"
@@ -8,68 +8,122 @@ const ChatPage = () => {
     const { userId } = useParams()
     const [messages, setMessages] = useState([])
     const [newMessage, setNewMessage] = useState("")
-    const token = localStorage.getItem('token')
+    const [chatUser, setChatUser] = useState(null)
+    const token = localStorage.getItem("token")
+    const loggedInUserId = localStorage.getItem("userId")
+    const messagesEndRef = useRef(null)
 
     useEffect(() => {
-        axios.get(`http://localhost:8000/api/v1/chats/history/${userId}`, {
-            headers: { Authorization: `Bearer ${token}` }
-        })
-        .then((response) => {
-            setMessages(response.data || [])
-        })
-        .catch((error) => console.error("Error fetching messages:", error))
-    }, [userId])
-
-    useEffect(() => {
-        socket.on("receiveMessage", (message) => {
-            setMessages((prev) => [...prev, message])
-        })
-        return () => socket.off("receiveMessage")
-    }, [])
-
-    const sendMessage = async () => {
-    if (!newMessage.trim()) return;
-
-    const tempMessage = {
-        _id: Date.now(),
-        sender: { _id: userId },
-        text: newMessage,
-        pending: true,
-    };
-
-    setMessages((prev) => [...prev, tempMessage]);
-    setNewMessage("");
-
-    try {
-        const response = await axios.post("http://localhost:8000/api/v1/chats/send", { recipientId: userId, text: newMessage }, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-
-        if (response.data) {
-            setMessages((prev) =>
-                prev.map((msg) => (msg._id === tempMessage._id ? response.data : msg)) // ✅ Replace temp message with real one
-            );
-            socket.emit("sendMessage", response.data);
+        if (loggedInUserId) {
+            socket.emit("registerUser", loggedInUserId)
         }
-    } catch (error) {
-        console.error("Error sending message:", error);
-        setMessages((prev) => prev.filter((msg) => msg._id !== tempMessage._id)); // ❌ Remove failed message
+
+        return () => {
+            socket.off("connect")
+            socket.off("disconnect")
+        }
+    }, [loggedInUserId])
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const [userRes, messagesRes] = await Promise.all([
+                    axios.get(`http://localhost:8000/api/v1/users/${userId}`, {
+                        headers: { Authorization: `Bearer ${token}` },
+                    }),
+                    axios.get(`http://localhost:8000/api/v1/chats/history/${userId}`, {
+                        headers: { Authorization: `Bearer ${token}` },
+                    }),
+                ]);
+                setChatUser(userRes.data);
+                setMessages(messagesRes.data || []);
+                scrollToBottom();
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
+        }
+
+        fetchData()
+    }, [userId, token])
+
+
+    useEffect(() => {
+        const handleReceiveMessage = (message) => {
+            console.log("📩 New message received:", message);
+            setMessages((prev) => [...prev, message]);
+            scrollToBottom();
+        };
+    
+        socket.on("receiveMessage", handleReceiveMessage);
+    
+        return () => {
+            socket.off("receiveMessage", handleReceiveMessage);
+        };
+    }, []);
+    
+    
+    const sendMessage = async () => {
+        if (!newMessage.trim()) return;
+    
+        const tempMessage = {
+            _id: Date.now(),
+            senderId: loggedInUserId,
+            recipientId: userId,
+            text: newMessage,
+            pending: true,
+        }
+    
+        setMessages((prev) => [...prev, tempMessage])
+        setNewMessage("");
+    
+        try {
+            const response = await axios.post(
+                "http://localhost:8000/api/v1/chats/send",
+                { recipientId: userId, text: newMessage },
+                { headers: { Authorization: `Bearer ${token}` } }
+            )
+    
+            if (response.data) {
+                setMessages((prev) =>
+                    prev.map((msg) => (msg._id === tempMessage._id ? response.data : msg))
+                )
+                socket.emit("sendMessage", response.data)
+            }
+        } catch (error) {
+            console.error("❌ Error sending message:", error)
+            setMessages((prev) => prev.filter((msg) => msg._id !== tempMessage._id))
+        }
     }
-};
+
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+    }
+
+    useEffect(() => {
+        scrollToBottom()
+    }, [messages])
 
     return (
         <div className="chat-page">
-            <h2>Chat</h2>
+            <div className="chat-header">
+                {chatUser && (
+                    <>
+                        <img src={chatUser.profileImage} alt="User" className="profile-photo" />
+                        <h2>{chatUser.name}</h2>
+                    </>
+                )}
+            </div>
             <div className="messages">
                 {messages.length > 0 ? (
                     messages.map((msg, index) => (
-                        <div key={index} className={`message ${msg.sender?._id === userId ? "received" : "sent"}`}>
-                            {msg.text}
+                        <div key={msg._id || index} className={`message ${msg.senderId === loggedInUserId ? "sent" : "received"}`}>
+                            <span>{msg.text}</span>
                         </div>
                     ))
                 ) : (
                     <p>No messages yet</p>
                 )}
+                <div ref={messagesEndRef} />
             </div>
             <div className="input-area">
                 <input
