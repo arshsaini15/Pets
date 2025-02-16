@@ -1,9 +1,22 @@
+.chat-page {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    max-width: 600px;
+    margin: auto;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: #f9f9f9;
+}
+
 .chat-header {
     display: flex;
     align-items: center;
     padding: 10px;
-    border-bottom: 1px solid #ccc;
-    background-color: #f5f5f5;
+    background-color: #007bff;
+    color: white;
+    font-size: 18px;
 }
 
 .profile-photo {
@@ -13,25 +26,64 @@
     margin-right: 10px;
 }
 
-.message {
+.messages {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 10px;
     display: flex;
-    align-items: center;
-    margin-bottom: 10px;
+    flex-direction: column;
 }
 
-.sent {
-    justify-content: flex-end;
-    text-align: right;
+/* Sent messages (Align right) */
+.message.sent {
+    align-self: flex-end;
+    background-color: #007bff;
+    color: white;
+    border-radius: 12px 12px 0 12px;
+    padding: 10px 15px;
+    margin: 5px;
+    max-width: 70%;
+    word-wrap: break-word;
 }
 
-.received {
-    justify-content: flex-start;
-    text-align: left;
+/* Received messages (Align left) */
+.message.received {
+    align-self: flex-start;
+    background-color: #e5e5ea;
+    color: black;
+    border-radius: 12px 12px 12px 0;
+    padding: 10px 15px;
+    margin: 5px;
+    max-width: 70%;
+    word-wrap: break-word;
 }
 
-.message-photo {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    margin-right: 8px;
+/* Input area */
+.input-area {
+    display: flex;
+    padding: 10px;
+    background-color: white;
+    border-top: 1px solid #ddd;
+}
+
+.input-area input {
+    flex-grow: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    outline: none;
+}
+
+.input-area button {
+    margin-left: 10px;
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+.input-area button:hover {
+    background-color: #0056b3;
 }

@@ -1,4 +1,4 @@
-import mongoose from 'mongoose'
+import mongoose from "mongoose"
 
 const petSchema = new mongoose.Schema({
     name: {
@@ -14,28 +14,45 @@ const petSchema = new mongoose.Schema({
     },
     age: {
         type: Number,
+        required: true,
     },
     description: {
         type: String,
     },
     imageUrl: {
         type: String,
+        required: true,
     },
-    // adoptionStatus: {
-    //     type: String,
-    //     enum: ["Available", "Adopted", "Not Available"],
-    //     default: "available",
-    // },
+    price: {
+        type: Number,
+        required: true,
+        default: 0,
+    },
     owner: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
     },
     likes: [
         {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
         },
     ],
-}, { timestamps: true })
+    location: {
+        type: {
+            type: String,
+            enum: ["Point"], // GeoJSON format
+            default: "Point",
+            required: true,
+        },
+        coordinates: {
+            type: [Number], // [longitude, latitude]
+            index: "2dsphere", // Enables geospatial queries
+        },
+        address: {
+            type: String,
+        },
+    },
+}, { timestamps: true });
 
-export const Pet = mongoose.model('Pet', petSchema)
+export const Pet = mongoose.model('Pet', petSchema);

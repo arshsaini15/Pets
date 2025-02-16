@@ -71,9 +71,9 @@ const ChatPage = () => {
             recipientId: userId,
             text: newMessage,
             pending: true,
-        }
+        };
     
-        setMessages((prev) => [...prev, tempMessage])
+        setMessages((prev) => [...prev, tempMessage]); // ✅ Update UI instantly
         setNewMessage("");
     
         try {
@@ -81,19 +81,25 @@ const ChatPage = () => {
                 "http://localhost:8000/api/v1/chats/send",
                 { recipientId: userId, text: newMessage },
                 { headers: { Authorization: `Bearer ${token}` } }
-            )
+            );
     
             if (response.data) {
                 setMessages((prev) =>
                     prev.map((msg) => (msg._id === tempMessage._id ? response.data : msg))
-                )
-                socket.emit("sendMessage", response.data)
+                );
+                
+                // ✅ Emit to the correct recipient instantly
+                socket.emit("sendMessage", { 
+                    senderId: loggedInUserId, 
+                    receiverId: userId, 
+                    text: newMessage 
+                });
             }
         } catch (error) {
-            console.error("❌ Error sending message:", error)
-            setMessages((prev) => prev.filter((msg) => msg._id !== tempMessage._id))
+            console.error("❌ Error sending message:", error);
+            setMessages((prev) => prev.filter((msg) => msg._id !== tempMessage._id));
         }
-    }
+    }    
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -116,7 +122,10 @@ const ChatPage = () => {
             <div className="messages">
                 {messages.length > 0 ? (
                     messages.map((msg, index) => (
-                        <div key={msg._id || index} className={`message ${msg.senderId === loggedInUserId ? "sent" : "received"}`}>
+                        <div 
+                            key={msg._id || index} 
+                            className={`message ${msg.senderId === loggedInUserId ? "sent" : "received"}`}
+                        >
                             <span>{msg.text}</span>
                         </div>
                     ))
@@ -125,6 +134,7 @@ const ChatPage = () => {
                 )}
                 <div ref={messagesEndRef} />
             </div>
+
             <div className="input-area">
                 <input
                     type="text"

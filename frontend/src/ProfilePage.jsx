@@ -8,7 +8,7 @@ const ProfilePage = () => {
     const [profileImage, setProfileImage] = useState(null)
     const [username, setUsername] = useState("")
     const [bio, setBio] = useState("")
-    const [[posts], setPosts] = useState("")
+    const [posts, setPosts] = useState("")
     const [connections, setConnections] = useState(0)
     const [pets, setPets] = useState([])
     const [loading, setLoading] = useState(true)
