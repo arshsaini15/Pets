@@ -70,6 +70,9 @@ const userSchema = new mongoose.Schema({
             ref: "Post",  // References posts made by the user in the community feed
         },
     ],
+    pendingEmail: {
+        type: String
+    },
     bio: {
         type: String,
         maxLength: 500,

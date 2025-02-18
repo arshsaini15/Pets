@@ -38,6 +38,27 @@ const SettingsPage = () => {
         fetchUserData();
     }, []);
 
+    const [newEmail, setNewEmail] = useState("");
+
+const handleEmailChange = async (e) => {
+    e.preventDefault();
+    try {
+        const token = localStorage.getItem("token");
+        const response = await axios.patch(
+            "http://localhost:8000/api/v1/users/update-email",
+            { newEmail },
+            {
+                headers: { Authorization: `Bearer ${token}` },
+                withCredentials: true,
+            }
+        );
+        alert(response.data.message);
+    } catch (err) {
+        setError("Failed to update email.");
+    }
+};
+
+
     const handleSignOut = async () => {
         try {
             await axios.post(
@@ -163,6 +184,22 @@ const SettingsPage = () => {
                                 onChange={(e) => setUserData({ ...userData, bio: e.target.value })}
                             />
                             <button type="submit">Update Bio</button>
+                        </form>
+                    )}
+                </div>
+
+                <div className="settings-section">
+                    <h2 onClick={() => toggleSection("email")}>Change Email</h2>
+                    {activeSection === "email" && (
+                        <form onSubmit={handleEmailChange}>
+                            <input 
+                                type="email" 
+                                placeholder="New Email" 
+                                value={newEmail} 
+                                onChange={(e) => setNewEmail(e.target.value)} 
+                                required 
+                            />
+                            <button type="submit">Update Email</button>
                         </form>
                     )}
                 </div>

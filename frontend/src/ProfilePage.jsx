@@ -62,27 +62,6 @@ const ProfilePage = () => {
     }
       
 
-    const updateBio = async () => {
-        try {
-            const token = localStorage.getItem("token")
-            await axios.patch(
-                "http://localhost:8000/api/v1/users/bio",
-                { bio },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                    withCredentials: true,
-                }
-            )
-
-            setShowTextarea(false)
-            alert("Bio updated successfully!")
-        } catch (error) {
-            console.error("Error updating bio:", error.response?.data || error.message)
-        }
-    }
-
     const handleButtonClick = () => {
         setShowTextarea(!showTextarea)
     }
@@ -129,9 +108,6 @@ const ProfilePage = () => {
                                 />
                             )}
                         </div>
-                        <button onClick={showTextarea ? updateBio : handleButtonClick} className="edit-bio-btn">
-                            {showTextarea ? "Save Bio" : "Edit Bio"}
-                        </button>
                         <div className="connections">
                             <p onClick={fetchConnections}><strong>Connections:</strong> {connections.length}</p>
                         </div>

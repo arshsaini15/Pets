@@ -1,282 +1,147 @@
-:root {
-    --primary-color: #3b82f6;
-    --primary-hover: #2563eb;
-    --background-gradient: linear-gradient(135deg, #f6f9fc 0%, #eef2f7 100%);
-    --card-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-    --transition: all 0.3s ease;
-}
-
 .pet-gallery-container {
-    min-height: 100vh;
-    background: var(--background-gradient);
-    padding: 2rem;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    padding: 30px 20px;
+    max-width: 1200px;
+    margin: 20px auto;
+    background: #f8fafc;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-.pet-gallery-heading {
+.pet-gallery-container h1 {
+    font-size: 1.8rem;
+    color: #1a1a1a;
+    margin-bottom: 30px;
+    font-weight: 600;
     text-align: center;
-    font-size: 2.5rem;
-    color: #1e293b;
-    margin-bottom: 2rem;
-    font-weight: 800;
 }
 
 .pet-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 2rem;
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 20px;
+    padding: 10px;
 }
 
 .pet-item {
     background: white;
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
-    transition: var(--transition);
-    cursor: pointer;
-    position: relative;
+    border-radius: 12px;
+    padding: 15px;
     display: flex;
     flex-direction: column;
-    height: 450px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    position: relative;
+    overflow: hidden;
 }
 
 .pet-item:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--card-shadow);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .pet-thumbnail {
     width: 100%;
-    height: 220px;
-    object-fit: contain;
-    transition: var(--transition);
+    height: 180px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    transition: transform 0.3s ease;
 }
 
 .pet-item:hover .pet-thumbnail {
-    transform: scale(1.05);
+    transform: scale(1.03);
 }
 
 .pet-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #1e293b;
-    margin: 1rem;
-    margin-bottom: 0.5rem;
-}
-
-.pet-category {
-    color: var(--primary-color);
+    font-size: 1.1rem;
+    color: #2d3748;
+    margin: 0 0 8px 0;
     font-weight: 600;
-    margin: 0 1rem;
-    font-size: 1rem;
-}
-
-.pet-age-info {
-    color: #64748b;
-    margin: 0.5rem 1rem;
-    font-size: 0.9rem;
+    line-height: 1.3;
 }
 
 .pet-summary {
-    color: #475569;
-    margin: 0.5rem 1rem;
-    font-size: 0.95rem;
-    line-height: 1.5;
-    flex-grow: 1;
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
+    font-size: 0.9rem;
+    color: #64748b;
+    margin: 5px 0;
+    line-height: 1.4;
+}
+
+.pet-summary strong {
+    color: #2563eb;
+    font-size: 1.15rem;
+    font-weight: 600;
+    display: block;
+    margin-top: 10px;
 }
 
 .chat-button {
-    margin: 1rem;
-    padding: 0.75rem 1.5rem;
-    background: var(--primary-color);
+    margin-top: auto;
+    padding: 8px 16px;
+    background: #2563eb;
     color: white;
     border: none;
-    border-radius: 10px;
-    font-weight: 600;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 500;
     cursor: pointer;
-    transition: var(--transition);
+    transition: all 0.2s ease;
 }
 
 .chat-button:hover {
-    background: var(--primary-hover);
-    transform: translateY(-2px);
+    background: #1d4ed8;
+    transform: translateY(-1px);
 }
 
-/* Loading and Error States */
-.loading-message,
-.error-message {
+.chat-button:active {
+    transform: translateY(0);
+}
+
+.pet-gallery-container > p {
     text-align: center;
-    padding: 2rem;
-    margin: 2rem auto;
-    max-width: 600px;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-}
-
-.error-message {
-    background: #fee2e2;
-    color: #ef4444;
-    border-left: 4px solid #ef4444;
-}
-
-/* Pet Profile Styles */
-.pet-profile-container {
-    min-height: 100vh;
-    background: var(--background-gradient);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 2rem;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
-.pet-profile-card {
-    width: 85%;
-    max-width: 1200px;
-    background: white;
-    border-radius: 24px;
-    box-shadow: var(--card-shadow);
-    display: grid;
-    grid-template-columns: 1fr 1.5fr;
-    gap: 2rem;
-    position: relative;
-    overflow: hidden;
-    padding: 2.5rem;
-    transition: var(--transition);
-}
-
-.pet-profile-card h1 {
-    position: absolute;
-    top: 1.5rem;
-    right: 2rem;
-    font-size: 1.1rem;
+    padding: 20px;
     color: #64748b;
-    background: #f8fafc;
-    padding: 0.5rem 1rem;
-    border-radius: 1rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    font-size: 1rem;
 }
 
-.pet-image-container {
-    position: relative;
-    border-radius: 16px;
-    overflow: hidden;
-}
-
-.pet-image-container .pet-thumbnail {
-    width: 100%;
-    height: 400px;
-    object-fit: contain; /* Ensures the whole image fits inside the container */
-    transition: var(--transition);
-}
-
-.pet-image-container:hover .pet-thumbnail {
-    transform: scale(1.05);
-}
-
-.pet-details {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 1rem 0;
-}
-
-.pet-details .pet-title {
-    font-size: 2.5rem;
-    margin: 0 0 1rem 0;
-}
-
-.pet-details .pet-category,
-.pet-details .pet-age-info,
-.pet-details .pet-summary {
-    margin: 0.5rem 0;
-}
-
-.pet-contact {
-    margin-top: auto;
-}
-
-.contact-owner-btn {
-    padding: 1rem 2rem;
-    background: var(--primary-color);
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-size: 1.1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition);
-}
-
-.contact-owner-btn:hover {
-    background: var(--primary-hover);
-    transform: translateY(-2px);
-}
-
-.back-btn {
-    position: absolute;
-    bottom: 2rem;
-    left: 2rem;
-    padding: 0.75rem 1.5rem;
-    background: #f1f5f9;
-    color: #475569;
-    border: none;
-    border-radius: 10px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: var(--transition);
-}
-
-.back-btn:hover {
-    background: #e2e8f0;
-    transform: translateX(-2px);
-}
-
-/* Responsive Design */
-@media (max-width: 1200px) {
+@media (max-width: 1024px) {
     .pet-grid {
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 15px;
     }
 }
 
 @media (max-width: 768px) {
     .pet-gallery-container {
-        padding: 1rem;
+        padding: 20px 15px;
+        margin: 10px;
     }
 
     .pet-grid {
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 1rem;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 12px;
     }
 
-    .pet-profile-card {
-        grid-template-columns: 1fr;
-        width: 95%;
-        padding: 1.5rem;
+    .pet-thumbnail {
+        height: 160px;
     }
 
-    .pet-profile-card h1 {
-        position: relative;
-        top: 0;
-        right: 0;
-        text-align: center;
-        margin-bottom: 1rem;
+    .pet-title {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .pet-grid {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 10px;
     }
 
-    .contact-owner-btn,
-    .back-btn {
-        width: 100%;
-        position: relative;
-        left: 0;
-        bottom: 0;
-        margin-top: 1rem;
+    .pet-item {
+        padding: 12px;
+    }
+
+    .pet-thumbnail {
+        height: 140px;
     }
 }

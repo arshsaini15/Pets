@@ -47,12 +47,14 @@ const petSchema = new mongoose.Schema({
         },
         coordinates: {
             type: [Number], // [longitude, latitude]
-            index: "2dsphere", // Enables geospatial queries
+            required: true, // Ensure coordinates are always provided
         },
         address: {
             type: String,
         },
     },
 }, { timestamps: true });
+
+petSchema.index({ location: "2dsphere" });
 
 export const Pet = mongoose.model('Pet', petSchema);

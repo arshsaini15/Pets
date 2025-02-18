@@ -2,9 +2,17 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css'
-import L from 'leaflet'
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
 import './PetProfile.css';
+
+// Fix Leaflet icon issues
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
 
 const PetProfile = () => {
   const { petId } = useParams();
@@ -56,6 +64,11 @@ const PetProfile = () => {
     addToListAndNavigate(pet.owner._id);
   };
 
+  const petIcon = L.icon({
+    iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
+    iconSize: [32, 32],
+  });
+
   return (
     <div className="pet-profile-container">
       {loading && <div className="loading-message">Loading...</div>}
@@ -67,13 +80,18 @@ const PetProfile = () => {
             <h1 
               onMouseOver={(e) => (e.target.style.cursor = "pointer")} 
               onClick={() => navigate(`/profile/${pet.owner._id}`)}
+              className="pet-owner-name"
             >
-              {pet.owner.username}
+              {pet.owner.username}'s Pet
             </h1>
           )}
 
           <div className="pet-image-container">
-            <img src={pet.imageUrl || 'default-image-url.jpg'} alt={pet.name} className="pet-thumbnail" />
+            <img 
+              src={pet.imageUrl || 'https://via.placeholder.com/400x300?text=No+Image+Available'} 
+              alt={pet.name} 
+              className="pet-thumbnail" 
+            />
           </div>
 
           <div className="pet-details">
@@ -82,30 +100,30 @@ const PetProfile = () => {
             <p className="pet-age-info">{pet.age} years old</p>
             <p className="pet-summary">{pet.description || 'No description available'}</p>
 
-            <div className="pet-contact">
-              <button className="contact-owner-btn" onClick={chatWithOwner}>
-                Contact Owner
-              </button>
-            </div>
+            <button className="contact-owner-btn" onClick={chatWithOwner}>
+              Contact Owner
+            </button>
           </div>
 
-          <div className="pet-location">
+          <div className="pet-location-wrapper">
             <h3>Pet's Location</h3>
             {pet.location?.coordinates?.length === 2 ? (
               <MapContainer
                 center={[pet.location.coordinates[1], pet.location.coordinates[0]]}
                 zoom={13}
-                style={{ height: "300px", width: "100%", borderRadius: "10px" }}
+                className="pet-map"
               >
                 <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                 <Marker
                   position={[pet.location.coordinates[1], pet.location.coordinates[0]]}
-                  icon={L.icon({
-                    iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
-                    iconSize: [32, 32],
-                  })}
+                  icon={petIcon}
                 >
-                  <Popup>{pet.name} is here! 📍</Popup>
+                  <Popup>
+                    <div style={{ textAlign: 'center' }}>
+                      <strong>{pet.name}</strong> is here! 📍
+                      <p>Meet this {pet.breed || 'wonderful pet'}</p>
+                    </div>
+                  </Popup>
                 </Marker>
               </MapContainer>
             ) : (
@@ -113,7 +131,7 @@ const PetProfile = () => {
             )}
           </div>
 
-          <button className="back-btn" onClick={handleBack}>Back to Pets</button>
+          <button  className="back-btn" onClick={handleBack}>Back to Pets</button>
         </div>
       )}
     </div>

@@ -27,11 +27,11 @@ import userRouter from './routes/user.routes.js'
 import signinRouter from './routes/signin.routes.js'
 import logoutRouter from './routes/logout.routes.js'
 import getprofileRouter from './routes/getprofile.routes.js'
-import updateBioRouter from './routes/bio.routes.js'
 import fetchUsersRouter from './routes/fetchusers.routes.js'
 import connectUserRouter from './routes/connect.routes.js'
 import personProfileRouter from './routes/personprofile.routes.js'
 import editProfileRouter from './routes/editprofile.routes.js'
+import emailRouter from './routes/emailroutes.js'
 
 // admin
 import adminLoginRouter from './routes/adminlogin.routes.js'
@@ -56,6 +56,7 @@ import connectionPetsRouter from './routes/connectionpets.routes.js'
 import getPetsRouter from './routes/getpets.routes.js'
 import allPetsRouter from './routes/allpets.routes.js'
 import petProfileRouter from './routes/getpetprofile.routes.js'
+import petsNearMeRouter from './routes/petnearme.routes.js'
 
 // products
 import productDetailsRouter from './routes/productdetail.routes.js'
@@ -75,11 +76,11 @@ app.use("/api/v1/users", userRouter)
 app.use("/api/v1/users", signinRouter)
 app.use("/api/v1/users", logoutRouter)
 app.use("/api/v1/users", getprofileRouter)
-app.use("/api/v1/users", updateBioRouter)
 app.use("/api/v1/users", fetchUsersRouter)
 app.use("/api/v1/users", connectUserRouter)
 app.use("/api/v1/users", personProfileRouter)
 app.use("/api/v1/users", editProfileRouter)
+app.use("/api/v1/users", emailRouter)
 
 // admin
 app.use("/api/v1/admin", adminLoginRouter)
@@ -104,6 +105,8 @@ app.use("/api/v1/pets", connectionPetsRouter)
 app.use("/api/v1/pets", createPostRouter)
 app.use("/api/v1/pets", allPetsRouter)
 app.use("/api/v1/pets", petProfileRouter)
+app.use("/api/v1/pets", petProfileRouter)
+app.use("/api/v1/pets", petsNearMeRouter)
 
 // discuss
 app.use("/api/v1/discuss", discussAddPostRouter)
