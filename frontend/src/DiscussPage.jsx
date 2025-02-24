@@ -44,6 +44,7 @@ const DiscussPage = () => {
             : post
         ))
         } catch (error) {
+            alert('You are not authorized')
             console.error("Error liking post:", error)
         }
     }
@@ -74,6 +75,7 @@ const DiscussPage = () => {
             [postId]: ""
             }))
         } catch (error) {
+            alert('You are not authorized')
             console.error("Error adding comment:", error)
         }
         }
@@ -98,6 +100,7 @@ const DiscussPage = () => {
                 setPosts([res.data, ...posts])
                 setNewPost({ title: "", content: "", category: "" })
             } catch (error) {
+                alert('You are not authorized')
                 console.error("Error adding new post:", error)
             }
         }

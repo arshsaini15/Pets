@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import Navbar from './NavBar.jsx';
 import './ItemPage.css';
 
 const ItemPage = () => {
@@ -28,7 +27,6 @@ const ItemPage = () => {
 
     return (
         <div>
-            <Navbar />
             <div className="products-container">
                 <h1>Available Products</h1>
                 <button className="cart-btn" onClick={() => navigate('/cart')}>

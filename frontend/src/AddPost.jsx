@@ -1,6 +1,5 @@
 import { useState } from "react";
 import axios from "axios";
-import Navbar from "./NavBar.jsx";
 import { useNavigate } from "react-router-dom";
 import "./AddPost.css";
 
@@ -132,7 +131,6 @@ const AddPostPage = () => {
 
     return (
         <>
-            <Navbar />
             <div className="add-post-page">
                 <h2>Add a Pet</h2>
                 <form onSubmit={handleSubmit} className="post-form">

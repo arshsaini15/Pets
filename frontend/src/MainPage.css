@@ -1,231 +1,171 @@
-.users-container {
-    padding: 20px;
-    max-width: 1200px;
-    margin: 0 auto;
-    background-color: #f5f7fa;
-}
-
-.user-list {
-    display: flex;
-    flex-wrap: nowrap;
-    gap: 20px;
-    overflow-x: auto;
-    padding: 20px 0;
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: thin;
-    scrollbar-color: #b0b0b0 #f0f0f0;
+.mainpage-container {
     position: relative;
+    background-image: url('https://images.squarespace-cdn.com/content/v1/58c6c5556b8f5b5e4d716e3b/1513200970723-0ZWEJ2E1S97T0RK21ZOB/pet-grief_part1.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 100vh;
+    width: 100vw;
 }
 
-.user-list::-webkit-scrollbar {
-    height: 8px;
+.mainpage-container::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 1;
 }
 
-.user-list::-webkit-scrollbar-track {
-    background: #f0f0f0;
-    border-radius: 10px;
+.navbar-container {
+    position: relative;
+    z-index: 2;
 }
 
-.user-list::-webkit-scrollbar-thumb {
-    background: #b0b0b0;
-    border-radius: 10px;
-    transition: background-color 0.3s;
-}
-
-.user-list::-webkit-scrollbar-thumb:hover {
-    background: #909090;
-}
-
-.user-item {
-    background: white;
-    border-radius: 15px;
-    padding: 20px;
-    width: 250px;
-    min-width: 250px;
-    text-align: center;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s, box-shadow 0.2s;
-    flex-shrink: 0;
-    border: 1px solid rgba(0, 0, 0, 0.05);
-}
-
-.user-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-}
-
-.user-image {
-    width: 120px;
-    height: 120px;
-    object-fit: cover;
-    border-radius: 50%;
-    margin-bottom: 15px;
-    border: 3px solid #fff;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-}
-
-.user-item h2 {
-    color: #2c3e50;
-    font-size: 1.2rem;
-    margin: 10px 0;
-    font-weight: 600;
-}
-
-.user-item p {
-    color: #666;
-    font-size: 0.9rem;
-    line-height: 1.4;
-    margin-bottom: 15px;
-}
-
-.connect-button, .connected {
-    padding: 10px 20px;
-    border-radius: 25px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    width: 80%;
-    margin: 10px auto;
-    cursor: pointer;
-    border: none;
-}
-
-.connect-button {
-    background-color: #4CAF50;
-    color: white;
-}
-
-.connect-button:hover {
-    background-color: #45a049;
-    transform: scale(1.05);
-}
-
-.connected {
-    background-color: #e0e0e0;
-    color: #666;
-}
-
-.posts-container {
-    margin-top: 50px;
-    padding: 20px;
-}
-
-.posts-container h2 {
-    font-size: 1.8rem;
-    color: #2c3e50;
-    margin-bottom: 30px;
-    font-weight: 600;
-    text-align: center;
-}
-
-.post-list {
-    display: grid;
-    gap: 30px;
-    max-width: 800px;
-    margin: 0 auto;
-}
-
-.post-item {
-    background: white;
-    border-radius: 15px;
-    padding: 25px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    transition: transform 0.2s;
-}
-
-.post-item:hover {
-    transform: translateY(-3px);
-}
-
-.post-author {
-    display: flex;
-    align-items: center;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #eee;
-    margin-bottom: 15px;
-}
-
-.post-author-image {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    margin-right: 15px;
-    object-fit: cover;
-}
-
-.post-author h3 {
-    color: #2c3e50;
-    font-size: 1.1rem;
-    margin: 0;
-    flex-grow: 1;
-}
-
-.chat-button {
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    transition: transform 0.2s;
-    padding: 5px 10px;
-}
-
-.chat-button:hover {
-    transform: scale(1.2);
-}
-
-.pet-content {
-    display: flex;
-    gap: 25px;
-    margin-top: 20px;
-    align-items: flex-start;
-}
-
-.post-image {
-    width: 50%;
-    max-height: 400px;
-    object-fit: cover;
-    border-radius: 10px;
-    margin: 0;
-}
-
-.pet-details {
-    width: 50%;
+.mainpage-content {
+    position: absolute;
+    z-index: 2;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    align-items: center;
+    gap: 40px;
+    padding: 0 20px;
+    width: 100%;
+    max-width: 900px;
 }
 
-.pet-details h2 {
-    font-size: 1.1rem;
-    color: #2c3e50;
+.pet-message {
+    color: white;
+    font-size: 42px;
+    font-weight: 700;
+    text-align: center;
     margin: 0;
-    padding: 8px 0;
-    border-bottom: 1px solid #eee;
+    line-height: 1.3;
+    letter-spacing: 0.5px;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
 }
 
-.pet-details h2:last-child {
-    border-bottom: none;
+.get-started-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 40px;
+    font-size: 22px;
+    font-weight: 600;
+    color: white;
+    background: rgba(255, 255, 255, 0.15);
+    border: 3px solid rgba(255, 255, 255, 0.9);
+    border-radius: 40px;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    backdrop-filter: blur(8px);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
 
-.post-caption {
-    margin-bottom: 15px;
-    color: #666;
-    font-size: 0.95rem;
-    line-height: 1.5;
+.get-started-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+    border-color: white;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+.get-started-btn:active {
+    transform: scale(0.98);
+}
+
+.arrow-icon {
+    width: 26px;
+    height: 26px;
+    transition: transform 0.4s ease;
+}
+
+.get-started-btn:hover .arrow-icon {
+    transform: translateX(8px);
+}
+
+/* New styles for lower body */
+.lowerbody {
+    background: linear-gradient(to right, #2b2d42, #1a1b2e);
+    padding: 80px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+}
+
+.quote {
+    color: white;
+    font-size: 24px;
+    font-weight: 300;
+    text-align: center;
+    max-width: 800px;
+    margin: 0;
+    line-height: 1.6;
+    letter-spacing: 0.5px;
+    opacity: 0.9;
+    transition: all 0.3s ease;
+    padding: 20px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.quote:hover {
+    opacity: 1;
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 10px 20px rgba(255, 255, 255, 0.2),
+                0 0 15px rgba(255, 255, 255, 0.3),
+                0 0 30px rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
 }
 
 @media (max-width: 768px) {
-    .pet-content {
-        flex-direction: column;
-        gap: 15px;
+    .pet-message {
+        font-size: 32px;
     }
 
-    .post-image, .pet-details {
-        width: 100%;
+    .get-started-btn {
+        padding: 16px 32px;
+        font-size: 20px;
+    }
+    
+    .mainpage-content {
+        gap: 30px;
     }
 
-    .pet-details h2 {
-        font-size: 1rem;
-        padding: 6px 0;
+    .quote {
+        font-size: 20px;
+        padding: 15px;
+    }
+
+    .lowerbody {
+        padding: 60px 15px;
+        gap: 30px;
+    }
+}
+
+@media (max-width: 480px) {
+    .pet-message {
+        font-size: 28px;
+    }
+
+    .get-started-btn {
+        padding: 14px 28px;
+        font-size: 18px;
+    }
+
+    .quote {
+        font-size: 18px;
+        padding: 12px;
+    }
+
+    .lowerbody {
+        padding: 40px 10px;
+        gap: 25px;
     }
 }

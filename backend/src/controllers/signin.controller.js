@@ -52,8 +52,6 @@ const signedUser = asyncHandler(async (req, res) => {
         token,
         message: "Login successful",
     })
-
-
 })
 
 export { signedUser }

@@ -1,7 +1,7 @@
+import { FaTrash } from "react-icons/fa";
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import axios from "axios"
-import Navbar from "./NavBar.jsx"
 import './ProfilePage.css'
 
 const ProfilePage = () => {
@@ -61,9 +61,22 @@ const ProfilePage = () => {
         navigate(`/pets/${petId}`)
     }
       
+    const handleDelete = async (petId) => {
+        const confirmDelete = window.confirm("Are you sure you want to delete this pet?");
+        if (!confirmDelete) return;
 
-    const handleButtonClick = () => {
-        setShowTextarea(!showTextarea)
+        console.log('confirmed') 
+        
+        const res = await axios.delete('http://localhost:8000/api/v1/pets/getpets', {
+            data: {petId},
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
+            withCredentials: true,
+        })
+
+        console.log(res.data.message);
+        setPets(pets.filter(pet => pet._id !== petId));
     }
 
     const addPost = () => {
@@ -84,7 +97,6 @@ const ProfilePage = () => {
 
     return (
         <>
-            <Navbar />
             <div className="profile">
                 <div className="profile-content">
                     <div className="user-info">
@@ -121,6 +133,7 @@ const ProfilePage = () => {
                             {pets.length > 0 ? (
                                 pets.map(pet => (
                                     <div key={pet._id} className="pet-card">
+                                        <FaTrash className="delete-icon" onClick={() => handleDelete(pet._id)} />
                                         <p><strong>Name:</strong> {pet.name}</p>
                                         <p><strong>Species:</strong> {pet.species}</p>
                                         <p><strong>Age:</strong> {pet.age}</p>

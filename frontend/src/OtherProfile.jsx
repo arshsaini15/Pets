@@ -1,73 +1,107 @@
-import { useState, useEffect } from "react"
-import { useParams, useNavigate } from "react-router-dom"
-import axios from "axios"
-import Navbar from "./NavBar.jsx"
-import "./OtherProfile.css"
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
+import "./OtherProfile.css";
 
 const OtherProfile = () => {
-    const { userId } = useParams()
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState(null)
-    const [userProfile, setUserProfile] = useState(null)
-    const [userPosts, setUserPosts] = useState([])
-    const navigate = useNavigate()
+    const { userId } = useParams();
+    const [loading, setLoading] = useState(true);
+    const [userProfile, setUserProfile] = useState(null);
+    const [userPosts, setUserPosts] = useState([]);
+    const [profileError, setProfileError] = useState(null);
+    const [postsError, setPostsError] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchUserProfile = async () => {
             try {
-                const token = localStorage.getItem("token")
+                const token = localStorage.getItem("token");
 
-                const profileResponse = await axios.get(`http://localhost:8000/api/v1/users/${userId}`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                    withCredentials: true,
-                })
-
-                const postsResponse = await axios.get(`http://localhost:8000/api/v1/users/getuserposts/${userId}`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                    withCredentials: true,
-                })
-
-                setUserProfile(profileResponse.data)
-                setUserPosts(postsResponse.data)
+                // Fetch user profile
+                const profileResponse = await axios.get(
+                    `http://localhost:8000/api/v1/users/${userId}`,
+                    {
+                        headers: { Authorization: `Bearer ${token}` },
+                        withCredentials: true,
+                    }
+                );
+                setUserProfile(profileResponse.data);
             } catch (error) {
-                setError("Failed to load the profile. Please try again.")
+                setProfileError("Failed to load user profile.");
             } finally {
-                setLoading(false)
+                setLoading(false);
             }
         };
 
-        fetchUserProfile()
-    }, [userId])
+        const fetchUserPosts = async () => {
+            try {
+                const token = localStorage.getItem("token");
 
-    if (loading) return <p>Loading profile...</p>
-    if (error) return <p className="error">{error}</p>
+                // Fetch user posts
+                const postsResponse = await axios.get(
+                    `http://localhost:8000/api/v1/users/getuserposts/${userId}`,
+                    {
+                        headers: { Authorization: `Bearer ${token}` },
+                        withCredentials: true,
+                    }
+                );
+                setUserPosts(postsResponse.data);
+            } catch (error) {
+                setPostsError("User hasn't posted anything yet.");
+            }
+        };
+
+        fetchUserProfile();
+        fetchUserPosts();
+    }, [userId]);
+
+    if (loading) return <p>Loading profile...</p>;
+    if (profileError) return <p className="error">{profileError}</p>;
 
     return (
         <div>
-            <Navbar />
             <div className="other-profile-container">
                 {userProfile ? (
                     <div className="profile-card">
-                        <img src={userProfile.profileImage} alt={userProfile.username} className="profile-image" />
+                        <img
+                            src={userProfile.profileImage}
+                            alt={userProfile.username}
+                            className="profile-image"
+                        />
                         <h2>{userProfile.username}</h2>
-                        <p><strong>Bio:</strong> {userProfile.bio}</p>
-                        <p><strong>Connections:</strong> {userProfile.connections.length}</p>
+                        <p>
+                            <strong>Bio:</strong> {userProfile.bio}
+                        </p>
+                        <p>
+                            <strong>Connections:</strong> {userProfile.connections.length}
+                        </p>
                         <div className="other-profile-actions">
-                        <button
-                            onClick={() => navigate(`/chat/${userId}`)}
-                            className="message-btn"
+                            <button
+                                onClick={() => navigate(`/chat/${userId}`)}
+                                className="message-btn"
                             >
-                            Message
-                        </button>
+                                Message
+                            </button>
                         </div>
 
+                        {/* Show posts only if available */}
                         <div className="user-posts">
                             <h3>Posts</h3>
-                            {userPosts.length > 0 ? (
+                            {postsError ? (
+                                <p className="error">{postsError}</p>
+                            ) : userPosts.length > 0 ? (
                                 userPosts.map((post) => (
                                     <div key={post._id} className="post-card">
-                                        <p><strong>Caption:</strong> {post.caption}</p>
-                                        {post.imageUrl && <img src={post.imageUrl} alt="Post" className="post-image" />}
+                                        <p>
+                                            <strong>Caption:</strong> {post.caption}
+                                        </p>
+                                        {post.imageUrl && (
+                                            <img
+                                                src={post.imageUrl}
+                                                alt="Post"
+                                                className="post-image"
+                                            />
+                                        )}
                                     </div>
                                 ))
                             ) : (
@@ -80,7 +114,7 @@ const OtherProfile = () => {
                 )}
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default OtherProfile
+export default OtherProfile;

@@ -3,9 +3,13 @@ import { asyncHandler } from '../utils/asyncHandler.js'
 
 export const allPets = asyncHandler(async (req, res) => {
     try {
-        const pets = await Pet.find({ owner: { $ne: req.userId } })
+        const userId = req.headers.userid
+        const pets = await Pet.find({ owner: { $ne: userId} })
             .populate('owner', 'username')
             .sort({ name: 1 })
+        
+        console.log(pets)
+            
         
         if (!pets || pets.length === 0) {
             return res.status(404).json({ message: "No pets found." })

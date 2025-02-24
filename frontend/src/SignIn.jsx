@@ -4,13 +4,19 @@ import axios from 'axios';
 import './SignIn.css';
 
 const SignIn = () => {
-    const [formData, setFormData] = useState({
-        email: '',
-        password: '',
-    });
-
-    const [showWelcomePopup, setShowWelcomePopup] = useState(true);
     const navigate = useNavigate();
+
+    const [formData, setFormData] = useState({ email: '', password: '' });
+    const [showWelcomePopup, setShowWelcomePopup] = useState(true);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (localStorage.getItem('token')) {
+            navigate('/');
+        } else {
+            setLoading(false);
+        }
+    }, [navigate]);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -22,38 +28,36 @@ const SignIn = () => {
         try {
             const response = await axios.post(
                 'http://localhost:8000/api/v1/users/signin',
-                {
-                    email: formData.email,
-                    password: formData.password,
-                },
-                {
-                    withCredentials: true,// Include credentials (cookies)
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                }
+                formData,
+                { withCredentials: true, headers: { 'Content-Type': 'application/json' } }
             );
+    
+            const { token, user } = response.data;
+            console.log(response.data)
             
-    
-            // Store the access token in localStorage
-            localStorage.setItem('token', response.data.token);
+            if (!user || !user.username) {
+                throw new Error("Invalid user data received");
+            }
+
+            localStorage.setItem('token', token);
             localStorage.setItem('userId', response.data.userId);
-    
-            // Redirect to the main page
-            navigate('/mainpage'); 
+            localStorage.setItem('username', user.username);
+
+            navigate('/'); 
         } catch (error) {
             console.error('Error signing in:', error.response?.data || error.message);
-        }
+        }    
     };
 
-    const closePopup = () => {
-        setShowWelcomePopup(false);
-    };
+    const closePopup = () => setShowWelcomePopup(false);
 
     useEffect(() => {
         const timer = setTimeout(closePopup, 3000);
         return () => clearTimeout(timer);
     }, []);
+
+    // ✅ Prevent rendering if already logged in
+    if (loading || localStorage.getItem('token')) return null;
 
     return (
         <>
@@ -90,12 +94,12 @@ const SignIn = () => {
                         <input type="submit" value='Submit'/>
                     </form>
                     <p className='linkTag'>
-                        Don't have an account? <Link to="/">Sign up</Link>
+                        Don't have an account? <Link to="/signup">Sign up</Link>
                     </p>
                 </div>
             </div>
         </>
-    )
+    );
 }
 
-export default SignIn
+export default SignIn;

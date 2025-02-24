@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import axios from "axios"
-import Navbar from "./NavBar.jsx"
 import "./Connections.css"
 
 const Connections = () => {
@@ -35,7 +34,6 @@ const Connections = () => {
 
     return (
         <div>
-            <Navbar />
             <div className="connections-container">
                 <h1>Your Connections 🔗</h1>
                 {loading ? (

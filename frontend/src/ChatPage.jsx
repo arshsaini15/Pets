@@ -73,7 +73,8 @@ const ChatPage = () => {
             pending: true,
         };
     
-        setMessages((prev) => [...prev, tempMessage]); // ✅ Update UI instantly
+        // ✅ Update UI instantly
+        setMessages((prev) => [...prev, tempMessage]);
         setNewMessage("");
     
         try {
@@ -87,19 +88,20 @@ const ChatPage = () => {
                 setMessages((prev) =>
                     prev.map((msg) => (msg._id === tempMessage._id ? response.data : msg))
                 );
-                
-                // ✅ Emit to the correct recipient instantly
-                socket.emit("sendMessage", { 
-                    senderId: loggedInUserId, 
-                    receiverId: userId, 
-                    text: newMessage 
-                });
             }
+    
+            // ✅ Emit the message AFTER setting state
+            socket.emit("sendMessage", { 
+                senderId: loggedInUserId, 
+                receiverId: userId, 
+                text: newMessage 
+            });
         } catch (error) {
             console.error("❌ Error sending message:", error);
             setMessages((prev) => prev.filter((msg) => msg._id !== tempMessage._id));
         }
-    }    
+    };
+    
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })

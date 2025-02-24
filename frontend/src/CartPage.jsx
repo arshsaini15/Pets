@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
-import Navbar from './NavBar.jsx'
 import './CartPage.css'
 
 const CartPage = () => {
@@ -68,7 +67,6 @@ const CartPage = () => {
 
     return (
         <div>
-            <Navbar />
             <div className="cart-container">
                 <h1>Your Cart 🛒</h1>
                 {loading ? (

@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import Navbar from "./NavBar.jsx";
 import "./ProductDetail.css";
 
 const ProductDetailsPage = () => {
@@ -51,7 +50,6 @@ const ProductDetailsPage = () => {
 
     return (
         <div>
-            <Navbar />
             <div className="product-details-container">
                 {loading ? (
                     <p>Loading product details...</p>

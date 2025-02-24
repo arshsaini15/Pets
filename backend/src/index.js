@@ -30,15 +30,16 @@ connectDB()
 
             socket.on("sendMessage", ({ senderId, receiverId, text }) => {
                 console.log(`📩 Message from ${senderId} to ${receiverId}: ${text}`);
-            
-                const receiverSocketId = users.get(receiverId);
+
+                const receiverSocketId = users.get(receiverId)
+                const senderSocketId = users.get(senderId)
+                io.to(senderSocketId).emit("receiveMessage", text)
                 if (receiverSocketId) {
                     io.to(receiverSocketId).emit("receiveMessage", { senderId, text });
                 } else {
                     console.log(`⚠️ User ${receiverId} is not online.`);
                 }
-            });
-            
+            })
 
             socket.on("disconnect", () => {
                 users.forEach((socketId, userId) => {

@@ -1,20 +1,24 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import Navbar from "./NavBar.jsx";
 import "./Settings.css";
 
 const SettingsPage = () => {
+    const navigate = useNavigate();
+    const token = localStorage.getItem("token");
+    const userId = localStorage.getItem("userId");
+    const username = localStorage.getItem("username");
+
     const [userData, setUserData] = useState({
-        username: "",
+        username: username || "",
         bio: "",
         profileImage: "",
     });
 
-    const navigate = useNavigate();
     const [newPassword, setNewPassword] = useState("");
     const [currentPassword, setCurrentPassword] = useState("");
     const [newProfileImage, setNewProfileImage] = useState(null);
+    const [newEmail, setNewEmail] = useState("");
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
     const [activeSection, setActiveSection] = useState(null);
@@ -22,7 +26,11 @@ const SettingsPage = () => {
     useEffect(() => {
         const fetchUserData = async () => {
             try {
-                const token = localStorage.getItem("token");
+                if (!token) {
+                    setError("User not authenticated.");
+                    setLoading(false);
+                    return;
+                }
                 const response = await axios.get("http://localhost:8000/api/v1/users/profile", {
                     headers: { Authorization: `Bearer ${token}` },
                     withCredentials: true,
@@ -36,55 +44,36 @@ const SettingsPage = () => {
         };
 
         fetchUserData();
-    }, []);
+    }, [token]);
 
-    const [newEmail, setNewEmail] = useState("");
-
-const handleEmailChange = async (e) => {
-    e.preventDefault();
-    try {
-        const token = localStorage.getItem("token");
-        const response = await axios.patch(
-            "http://localhost:8000/api/v1/users/update-email",
-            { newEmail },
-            {
-                headers: { Authorization: `Bearer ${token}` },
-                withCredentials: true,
-            }
-        );
-        alert(response.data.message);
-    } catch (err) {
-        setError("Failed to update email.");
-    }
-};
-
-
-    const handleSignOut = async () => {
+    const handleEmailChange = async (e) => {
+        e.preventDefault();
         try {
-            await axios.post(
-                "http://localhost:8000/api/v1/users/logout",
-                {},
+            await axios.patch(
+                "http://localhost:8000/api/v1/users/update-email",
+                { newEmail },
                 {
-                    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+                    headers: { Authorization: `Bearer ${token}` },
                     withCredentials: true,
                 }
             );
-
-            localStorage.clear();
-            navigate("/signin");
-        } catch (error) {
-            console.error("Error logging out:", error);
+            alert("Email updated successfully!");
+        } catch (err) {
+            setError("Failed to update email.");
         }
     };
 
     const handleUsernameUpdate = async (e) => {
         e.preventDefault();
         try {
-            const token = localStorage.getItem("token");
-            await axios.patch("http://localhost:8000/api/v1/users/update-username", { newUsername: userData.username }, {
-                headers: { Authorization: `Bearer ${token}` },
-                withCredentials: true,
-            });
+            await axios.patch(
+                "http://localhost:8000/api/v1/users/update-username",
+                { newUsername: userData.username },
+                {
+                    headers: { Authorization: `Bearer ${token}` },
+                    withCredentials: true,
+                }
+            );
             alert("Username updated successfully!");
         } catch (err) {
             setError("Failed to update username.");
@@ -94,11 +83,14 @@ const handleEmailChange = async (e) => {
     const handleBioUpdate = async (e) => {
         e.preventDefault();
         try {
-            const token = localStorage.getItem("token");
-            await axios.patch("http://localhost:8000/api/v1/users/update-bio", { newBio: userData.bio }, {
-                headers: { Authorization: `Bearer ${token}` },
-                withCredentials: true,
-            });
+            await axios.patch(
+                "http://localhost:8000/api/v1/users/update-bio",
+                { newBio: userData.bio },
+                {
+                    headers: { Authorization: `Bearer ${token}` },
+                    withCredentials: true,
+                }
+            );
             alert("Bio updated successfully!");
         } catch (err) {
             setError("Failed to update bio.");
@@ -108,7 +100,6 @@ const handleEmailChange = async (e) => {
     const handleProfileImageUpdate = async (e) => {
         e.preventDefault();
         try {
-            const token = localStorage.getItem("token");
             const formData = new FormData();
             formData.append("profileImage", newProfileImage);
 
@@ -128,7 +119,6 @@ const handleEmailChange = async (e) => {
     const handlePasswordChange = async (e) => {
         e.preventDefault();
         try {
-            const token = localStorage.getItem("token");
             await axios.patch(
                 "http://localhost:8000/api/v1/users/change-password",
                 { currentPassword, newPassword },
@@ -146,6 +136,13 @@ const handleEmailChange = async (e) => {
         }
     };
 
+    const handleSignOut = () => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("userId");
+        localStorage.removeItem("username");
+        navigate("/signin");
+    };
+
     const toggleSection = (section) => {
         setActiveSection(activeSection === section ? null : section);
     };
@@ -154,7 +151,6 @@ const handleEmailChange = async (e) => {
 
     return (
         <>
-            <Navbar />
             <div className="settings-page">
                 <h1>Settings</h1>
 
