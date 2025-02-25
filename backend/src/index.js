@@ -18,7 +18,7 @@ connectDB()
             },
         });
 
-        const users = new Map()
+        const users = new Map();
 
         io.on("connection", (socket) => {
             console.log(`🔥 User connected: ${socket.id}`);
@@ -26,30 +26,30 @@ connectDB()
             socket.on("registerUser", (userId) => {
                 users.set(userId, socket.id);
                 console.log(`✅ User ${userId} registered with socket ${socket.id}`);
+                console.log('users: ', users)
             });
 
+            // Handling message sending
             socket.on("sendMessage", ({ senderId, receiverId, text }) => {
                 console.log(`📩 Message from ${senderId} to ${receiverId}: ${text}`);
 
                 const receiverSocketId = users.get(receiverId)
-                const senderSocketId = users.get(senderId)
-                io.to(senderSocketId).emit("receiveMessage", text)
-                if (receiverSocketId) {
-                    io.to(receiverSocketId).emit("receiveMessage", { senderId, text });
-                } else {
-                    console.log(`⚠️ User ${receiverId} is not online.`);
-                }
+                console.log('senderSocketId', users.get(senderId))
+                console.log("receiverSocketId", receiverSocketId)
+                
+                io.to(receiverSocketId).emit("receiveMessage", { senderId, text })
             })
 
+            // Handling user disconnection
             socket.on("disconnect", () => {
                 users.forEach((socketId, userId) => {
                     if (socketId === socket.id) {
                         users.delete(userId);
                         console.log(`❌ User ${userId} disconnected`);
                     }
-                })
-            })
-        })
+                });
+            });
+        });
 
         const port = process.env.PORT;
         server.listen(port, () => {
@@ -58,4 +58,4 @@ connectDB()
     })
     .catch((err) => {
         console.log("MONGO DB connection failed !!! ", err);
-    })
+    });

@@ -1,29 +1,48 @@
-import { useState, useEffect, useRef } from "react"
-import { useParams } from "react-router-dom"
-import { socket } from "./utils/socket.js"
-import axios from "axios"
-import "./ChatPage.css"
+import { useState, useEffect, useRef } from "react";
+import { useParams } from "react-router-dom";
+import { socket } from "./utils/socket.js";
+import axios from "axios";
+import "./ChatPage.css";
 
 const ChatPage = () => {
-    const { userId } = useParams()
-    const [messages, setMessages] = useState([])
-    const [newMessage, setNewMessage] = useState("")
-    const [chatUser, setChatUser] = useState(null)
-    const token = localStorage.getItem("token")
-    const loggedInUserId = localStorage.getItem("userId")
-    const messagesEndRef = useRef(null)
+    const { userId } = useParams();
+    const [messages, setMessages] = useState([]);
+    const [newMessage, setNewMessage] = useState("");
+    const [chatUser, setChatUser] = useState(null);
+    const token = localStorage.getItem("token");
+    const loggedInUserId = localStorage.getItem("userId");
+    const messagesEndRef = useRef(null);
 
     useEffect(() => {
-        if (loggedInUserId) {
-            socket.emit("registerUser", loggedInUserId)
+        const storedUserId = localStorage.getItem("userId");
+    
+        if (storedUserId) {
+            console.log(`📡 Registering user: ${storedUserId}`);
+            socket.emit("registerUser", storedUserId);
+        } else {
+            console.error("⚠️ No userId found in localStorage!");
         }
+    }, []);
 
+    useEffect(() => {
+        const handleReceiveMessage = (message) => {
+            console.log("📩 New message received:", message);
+    
+            if (message.senderId === loggedInUserId) return;
+    
+            setMessages((prevMessages) => [...prevMessages, message]);
+            scrollToBottom();
+        };
+    
+        socket.on("receiveMessage", handleReceiveMessage);
+    
         return () => {
-            socket.off("connect")
-            socket.off("disconnect")
-        }
+            socket.off("receiveMessage", handleReceiveMessage);
+        };
     }, [loggedInUserId])
+    
 
+    // Fetch chat data
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -39,77 +58,69 @@ const ChatPage = () => {
                 setMessages(messagesRes.data || []);
                 scrollToBottom();
             } catch (error) {
-                console.error("Error fetching data:", error);
+                console.error("❌ Error fetching data:", error);
             }
-        }
-
-        fetchData()
-    }, [userId, token])
-
-
-    useEffect(() => {
-        const handleReceiveMessage = (message) => {
-            console.log("📩 New message received:", message);
-            setMessages((prev) => [...prev, message]);
-            scrollToBottom();
         };
-    
-        socket.on("receiveMessage", handleReceiveMessage);
-    
-        return () => {
-            socket.off("receiveMessage", handleReceiveMessage);
-        };
-    }, []);
-    
-    
-    const sendMessage = async () => {
-        if (!newMessage.trim()) return;
-    
+
+        if (userId) fetchData();
+    }, [userId]);
+
+    // Send message function
+    const sendMessage = async (messageToSend = null) => {
+        const messageText = messageToSend?.text || newMessage;
+        if (!messageText.trim()) return;
+
         const tempMessage = {
-            _id: Date.now(),
+            _id: messageToSend?._id || Date.now(), // Use existing ID if retrying
             senderId: loggedInUserId,
-            recipientId: userId,
-            text: newMessage,
-            pending: true,
+            receiverId: userId,
+            text: messageText,
+            pending: true, // Mark as pending
+            error: false, // Track failed messages
         };
-    
-        // ✅ Update UI instantly
+
         setMessages((prev) => [...prev, tempMessage]);
-        setNewMessage("");
-    
+        if (!messageToSend) setNewMessage(""); // Clear input only on first send
+
         try {
             const response = await axios.post(
                 "http://localhost:8000/api/v1/chats/send",
-                { recipientId: userId, text: newMessage },
+                { recipientId: userId, text: messageText },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
-    
+
             if (response.data) {
                 setMessages((prev) =>
-                    prev.map((msg) => (msg._id === tempMessage._id ? response.data : msg))
+                    prev.map((msg) =>
+                        msg._id === tempMessage._id ? { ...response.data, pending: false, error: false } : msg
+                    )
                 );
+
+                socket.emit("sendMessage", {
+                    senderId: loggedInUserId,
+                    receiverId: userId,
+                    text: messageText,
+                });
+
+                console.log(`📤 Message sent via socket: ${messageText}`);
             }
-    
-            // ✅ Emit the message AFTER setting state
-            socket.emit("sendMessage", { 
-                senderId: loggedInUserId, 
-                receiverId: userId, 
-                text: newMessage 
-            });
         } catch (error) {
             console.error("❌ Error sending message:", error);
-            setMessages((prev) => prev.filter((msg) => msg._id !== tempMessage._id));
+            setMessages((prev) =>
+                prev.map((msg) =>
+                    msg._id === tempMessage._id ? { ...msg, pending: false, error: true } : msg
+                )
+            );
         }
     };
-    
 
     const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-    }
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
 
     useEffect(() => {
-        scrollToBottom()
-    }, [messages])
+        scrollToBottom();
+    }, [messages]);
 
     return (
         <div className="chat-page">
@@ -121,14 +132,18 @@ const ChatPage = () => {
                     </>
                 )}
             </div>
+
             <div className="messages">
                 {messages.length > 0 ? (
                     messages.map((msg, index) => (
-                        <div 
-                            key={msg._id || index} 
-                            className={`message ${msg.senderId === loggedInUserId ? "sent" : "received"}`}
+                        <div
+                            key={msg._id || index}
+                            className={`message ${msg.senderId === loggedInUserId ? "sent" : "received"} 
+                                ${msg.pending ? "pending" : ""} ${msg.error ? "error" : ""}`}
+                            onClick={() => msg.error && sendMessage(msg)} // Retry on click
                         >
                             <span>{msg.text}</span>
+                            {msg.error && <small>❌ Failed. Tap to retry.</small>}
                         </div>
                     ))
                 ) : (
@@ -144,7 +159,7 @@ const ChatPage = () => {
                     onChange={(e) => setNewMessage(e.target.value)}
                     placeholder="Type a message..."
                 />
-                <button onClick={ sendMessage }>Send</button>
+                <button onClick={() => sendMessage()}>Send</button>
             </div>
         </div>
     )

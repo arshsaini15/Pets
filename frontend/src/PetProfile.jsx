@@ -70,48 +70,55 @@ const PetProfile = () => {
   });
 
   return (
-    <div className="pet-profile-container">
-      {loading && <div className="loading-message">Loading...</div>}
-      {error && <div className="error-message">{error}</div>}
+    <div className="profile-main">
+      {loading && <div className="loading-indicator">Loading...</div>}
+      {error && <div className="error-box">{error}</div>}
 
       {pet && (
-        <div className="pet-profile-card">
+        <div className="profile-card">
           {pet.owner && (
             <h1 
               onMouseOver={(e) => (e.target.style.cursor = "pointer")} 
               onClick={() => navigate(`/profile/${pet.owner._id}`)}
-              className="pet-owner-name"
+              className="owner-header"
             >
               {pet.owner.username}'s Pet
             </h1>
           )}
 
-          <div className="pet-image-container">
+          <div className="image-wrapper">
             <img 
               src={pet.imageUrl || 'https://via.placeholder.com/400x300?text=No+Image+Available'} 
               alt={pet.name} 
-              className="pet-thumbnail" 
+              className="main-image" 
             />
           </div>
 
-          <div className="pet-details">
-            <h2 className="pet-title">{pet.name}</h2>
-            <p className="pet-category">{pet.breed || 'Unknown Breed'}</p>
-            <p className="pet-age-info">{pet.age} years old</p>
-            <p className="pet-summary">{pet.description || 'No description available'}</p>
+          <div className="info-section">
+            <h2 className="pet-name">{pet.name}</h2>
+            <p className="breed-info">{pet.breed || 'Unknown Breed'}</p>
+            <p className="age-display">{pet.age} years old</p>
+            <p className="description-text">{pet.description || 'No description available'}</p>
 
-            <button className="contact-owner-btn" onClick={chatWithOwner}>
+            <button className="contact-button" onClick={chatWithOwner}>
               Contact Owner
             </button>
           </div>
 
-          <div className="pet-location-wrapper">
-            <h3>Pet's Location</h3>
+          <div className="location-section">
+            <h3 className="location-heading">Pet's Location</h3>
+            
+            {pet.location?.address && (
+              <div className="address-display">
+                {pet.location.address}
+              </div>
+            )}
+            
             {pet.location?.coordinates?.length === 2 ? (
               <MapContainer
                 center={[pet.location.coordinates[1], pet.location.coordinates[0]]}
                 zoom={13}
-                className="pet-map"
+                className="map-container"
               >
                 <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                 <Marker
@@ -127,11 +134,11 @@ const PetProfile = () => {
                 </Marker>
               </MapContainer>
             ) : (
-              <p>{pet.location?.address || 'Location not available'}</p>
+              !pet.location?.address && <p>Location not available</p>
             )}
           </div>
 
-          <button  className="back-btn" onClick={handleBack}>Back to Pets</button>
+          <button className="return-button" onClick={handleBack}>Back to Pets</button>
         </div>
       )}
     </div>

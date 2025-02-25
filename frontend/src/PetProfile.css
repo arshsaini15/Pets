@@ -1,88 +1,231 @@
-.pet-profile-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-  
-  .loading-message, .error-message {
-    font-size: 16px;
-    color: #ff0000;
-    margin-bottom: 20px;
-  }
-  
-  .pet-profile-card {
-    width: 100%;
+.profile-main {
     max-width: 600px;
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    position: relative;
+    margin: 0.5rem auto;
+    padding: 0 1rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   }
   
-  .pet-owner-name {
-    font-size: 24px;
-    font-weight: bold;
-    color: #333;
-    cursor: pointer;
-    margin-bottom: 15px;
+  .profile-card {
+    background-color: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding-bottom: 2rem;
   }
   
-  .pet-image-container {
+  .owner-header {
+    background-color: #4a6fa5;
+    color: #fff;
+    margin: 0;
+    padding: 1rem;
+    font-size: 1.5rem;
     text-align: center;
-    margin-bottom: 15px;
+    transition: all 0.3s ease;
   }
   
-  .pet-thumbnail {
+  .owner-header:hover {
+    background-color: #3a5a8c;
+    text-decoration: underline;
+  }
+  
+  .image-wrapper {
     width: 100%;
-    height: auto;
-    border-radius: 8px;
+    max-height: 400px;
+    overflow: hidden;
+    border-bottom: 3px solid #ff8c69;
   }
   
-  .pet-details {
-    margin-bottom: 20px;
+  .main-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
   }
   
-  .pet-title {
-    font-size: 22px;
-    font-weight: bold;
-    color: #333;
+  .info-section {
+    padding: 1.5rem 2rem;
+    text-align: center;
   }
   
-  .pet-category, .pet-age-info, .pet-summary {
-    font-size: 16px;
+  .pet-name {
+    font-size: 2rem;
+    color: #4a6fa5;
+    margin: 0.5rem 0;
+  }
+  
+  .pet-details-flex {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 1rem 0;
+    gap: 2rem;
+  }
+  
+  .breed-info, .age-display {
+    font-size: 1.1rem;
     color: #666;
-  }
-  
-  .contact-owner-btn, .back-btn {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    padding: 10px 15px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s;
-  }
-  
-  .contact-owner-btn:hover, .back-btn:hover {
-    background-color: #0056b3;
-  }
-  
-  .pet-location-wrapper {
-    width: 100%;
-    margin-top: 20px;
-    text-align: center;
-  }
-  
-  .pet-map {
-    width: 100%;
-    height: 300px;
+    position: relative;
+    padding: 0.5rem 1rem;
+    background-color: rgba(74, 111, 165, 0.1);
     border-radius: 8px;
-    margin-top: 10px;
   }
   
+  .breed-info::after, .age-display::after {
+    content: attr(data-label);
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.75rem;
+    background-color: #ff8c69;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  
+  .description-container {
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #4a6fa5;
+  }
+  
+  .description-heading {
+    font-size: 1rem;
+    color: #4a6fa5;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+  }
+  
+  .description-text {
+    line-height: 1.6;
+    font-size: 1.1rem;
+    color: #333;
+    text-align: left;
+  }
+  
+  .location-section {
+    padding: 0 2rem;
+    margin-bottom: 2rem;
+  }
+  
+  .location-heading {
+    color: #4a6fa5;
+    margin-bottom: 1rem;
+    font-size: 1.3rem;
+    border-bottom: 2px solid #ff8c69;
+    padding-bottom: 0.5rem;
+    display: inline-block;
+  }
+  
+  .map-container {
+    height: 300px;
+    border-radius: 12px;
+    border: 2px solid #4a6fa5;
+    margin-top: 1rem;
+  }
+  
+  .address-display {
+    display: flex;
+    align-items: center;
+    background-color: rgba(74, 111, 165, 0.1);
+    padding: 1rem;
+    border-radius: 12px;
+    margin: 1rem 0;
+    border-left: 4px solid #4a6fa5;
+    font-size: 1.1rem;
+  }
+  
+  .address-display::before {
+    content: "📍";
+    margin-right: 10px;
+    font-size: 1.5rem;
+  }
+  
+  .contact-button {
+    background-color: #ff8c69;
+    color: #fff;
+    border: none;
+    padding: 0.8rem 2rem;
+    font-size: 1.1rem;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    margin-top: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .contact-button:hover {
+    background-color: #ff7652;
+    transform: scale(1.05);
+  }
+  
+  .return-button {
+    background-color: #4a6fa5;
+    color: #fff;
+    border: none;
+    padding: 0.7rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: block;
+    margin: 0 auto;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .return-button:hover {
+    background-color: #3a5a8c;
+    transform: scale(1.05);
+  }
+  
+  .loading-indicator, .error-box {
+    text-align: center;
+    padding: 3rem;
+    font-size: 1.2rem;
+    color: #666;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .error-box {
+    color: #dc3545;
+    background-color: #f8d7da;
+  }
+  
+  /* Animation for profile loading */
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .profile-card {
+    animation: slideUp 0.5s ease forwards;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .profile-main {
+      padding: 0 0.5rem;
+    }
+    
+    .info-section, .location-section {
+      padding: 1rem;
+    }
+    
+    .pet-name {
+      font-size: 1.5rem;
+    }
+    
+    .pet-details-flex {
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .breed-info, .age-display {
+      width: 80%;
+    }
+  }
