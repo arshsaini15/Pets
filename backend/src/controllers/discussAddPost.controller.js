@@ -1,4 +1,5 @@
 import { Discussion } from "../models/discuss.models.js";
+import { User } from "../models/user.models.js"
 import { asyncHandler } from "../utils/asyncHandler.js";
 
 export const discussAddPost = asyncHandler(async (req, res) => {
@@ -9,6 +10,8 @@ export const discussAddPost = asyncHandler(async (req, res) => {
         return res.status(400).json({ message: "Title and content are required" })
     }
 
+    const user = await User.findById(userId).select('username')
+
     const newPost = new Discussion({
         user: userId,
         title,
@@ -18,5 +21,8 @@ export const discussAddPost = asyncHandler(async (req, res) => {
     })
 
     await newPost.save()
-    res.status(201).json(newPost)
+    res.status(201).json({
+        ...newPost._doc,
+        user,
+    });
 })

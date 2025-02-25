@@ -30,6 +30,7 @@
 }
 
 .add-post input,
+.add-post select,
 .add-post textarea {
     width: 100%;
     padding: 0.875rem;
@@ -305,4 +306,46 @@
     color: white;
     border-radius: 8px;
     border: none;
+}
+
+.filter-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.filter-buttons button {
+    background-color: #80c9cd;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    padding: 8px 15px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.filter-buttons button:hover {
+    background-color: #ddd;
+}
+
+.filter-buttons button.active {
+    background-color: #007bffc5;
+    color: white;
+    border-color: #0056b3;
+}
+
+.filter-buttons .clear-filters {
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    font-size: 18px;
+    padding: 8px 12px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.filter-buttons .clear-filters:hover {
+    background-color: #cc0000;
 }

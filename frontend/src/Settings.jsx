@@ -140,7 +140,7 @@ const SettingsPage = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("userId");
         localStorage.removeItem("username");
-        navigate("/signin");
+        navigate("/");
     };
 
     const toggleSection = (section) => {

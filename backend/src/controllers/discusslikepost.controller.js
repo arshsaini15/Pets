@@ -6,8 +6,6 @@ export const LikePost = asyncHandler(async (req, res) => {
     const postId = req.params.id;
     const userId = req.user.id;
 
-    console.log("Post ID:", postId);
-    console.log("User ID:", userId);
 
     if (!mongoose.Types.ObjectId.isValid(postId)) {
       return res.status(400).json({ message: "Invalid post ID" });
@@ -31,8 +29,6 @@ export const LikePost = asyncHandler(async (req, res) => {
       post.likes += 1;
       post.likedBy.push(userId);
     }
-
-    console.log("Likes before saving:", post.likes);
 
     await post.save();
 
