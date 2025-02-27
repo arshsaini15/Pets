@@ -6,43 +6,35 @@ import "./ChatPage.css";
 
 const ChatPage = () => {
     const { userId } = useParams();
-    const [messages, setMessages] = useState([]);
-    const [newMessage, setNewMessage] = useState("");
+    const [messages, setMessages] = useState([]); // Only stores received messages
+    const [senderMessages, setSenderMessages] = useState([]); // Stores sent messages
+    const [newMessage, setNewMessage] = useState(""); // Input message
     const [chatUser, setChatUser] = useState(null);
+    const [file, setFile] = useState(null);
+    const [filePreview, setFilePreview] = useState(null);
     const token = localStorage.getItem("token");
     const loggedInUserId = localStorage.getItem("userId");
     const messagesEndRef = useRef(null);
 
     useEffect(() => {
         const storedUserId = localStorage.getItem("userId");
-    
         if (storedUserId) {
-            console.log(`📡 Registering user: ${storedUserId}`);
             socket.emit("registerUser", storedUserId);
-        } else {
-            console.error("⚠️ No userId found in localStorage!");
         }
     }, []);
 
     useEffect(() => {
-        const handleReceiveMessage = (message) => {
-            console.log("📩 New message received:", message);
-    
-            if (message.senderId === loggedInUserId) return;
-    
+        socket.on("receiveMessage", (message) => {
+            if ((message.sender?._id || message.senderId) === loggedInUserId) return;
             setMessages((prevMessages) => [...prevMessages, message]);
             scrollToBottom();
-        };
-    
-        socket.on("receiveMessage", handleReceiveMessage);
-    
-        return () => {
-            socket.off("receiveMessage", handleReceiveMessage);
-        };
-    }, [loggedInUserId])
-    
+        });
 
-    // Fetch chat data
+        return () => {
+            socket.off("receiveMessage");
+        };
+    }, [loggedInUserId]);
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -54,6 +46,7 @@ const ChatPage = () => {
                         headers: { Authorization: `Bearer ${token}` },
                     }),
                 ]);
+
                 setChatUser(userRes.data);
                 setMessages(messagesRes.data || []);
                 scrollToBottom();
@@ -65,50 +58,81 @@ const ChatPage = () => {
         if (userId) fetchData();
     }, [userId]);
 
-    // Send message function
-    const sendMessage = async (messageToSend = null) => {
-        const messageText = messageToSend?.text || newMessage;
-        if (!messageText.trim()) return;
+    const handleFileChange = (e) => {
+        const selectedFile = e.target.files[0];
+        setFile(selectedFile);
 
+        if (selectedFile) {
+            const fileUrl = URL.createObjectURL(selectedFile);
+            setFilePreview(fileUrl);
+        }
+    };
+
+    useEffect(() => {
+        socket.on("messageSent", (message) => {
+            if ((message.sender?._id || message.senderId) !== loggedInUserId) return;
+            setSenderMessages((prevMessages) =>
+                prevMessages.map((msg) =>
+                    msg._id === message.tempId
+                        ? { ...message, pending: false, error: false }
+                        : msg
+                )
+            );
+            scrollToBottom();
+        });
+
+        return () => {
+            socket.off("messageSent");
+        };
+    }, [loggedInUserId]);
+
+    const sendMessage = async () => {
+        if (!newMessage.trim() && !file) return;
+
+        const formData = new FormData();
+        formData.append("recipientId", userId);
+        formData.append("text", newMessage);
+        if (file) formData.append("fileUrl", file);
+
+        const tempId = Date.now();
         const tempMessage = {
-            _id: messageToSend?._id || Date.now(), // Use existing ID if retrying
-            senderId: loggedInUserId,
+            _id: tempId,
+            sender: { _id: loggedInUserId }, // Ensure sender is always an object
             receiverId: userId,
-            text: messageText,
-            pending: true, // Mark as pending
-            error: false, // Track failed messages
+            text: newMessage,
+            fileUrl: filePreview,
+            fileType: file ? file.type : null,
+            pending: true,
+            error: false,
         };
 
-        setMessages((prev) => [...prev, tempMessage]);
-        if (!messageToSend) setNewMessage(""); // Clear input only on first send
+        setSenderMessages((prev) => [...prev, tempMessage]); // Show sent message instantly
+        setNewMessage("");
+        setFile(null);
+        setFilePreview(null);
 
         try {
+            socket.emit("sendMessage", { ...tempMessage, tempId });
+
             const response = await axios.post(
                 "http://localhost:8000/api/v1/chats/send",
-                { recipientId: userId, text: messageText },
-                { headers: { Authorization: `Bearer ${token}` } }
+                formData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "multipart/form-data",
+                    },
+                }
             );
 
             if (response.data) {
-                setMessages((prev) =>
-                    prev.map((msg) =>
-                        msg._id === tempMessage._id ? { ...response.data, pending: false, error: false } : msg
-                    )
-                );
-
-                socket.emit("sendMessage", {
-                    senderId: loggedInUserId,
-                    receiverId: userId,
-                    text: messageText,
-                });
-
-                console.log(`📤 Message sent via socket: ${messageText}`);
+                socket.emit("messageSent", { ...response.data, tempId });
             }
         } catch (error) {
             console.error("❌ Error sending message:", error);
-            setMessages((prev) =>
+            setSenderMessages((prev) =>
                 prev.map((msg) =>
-                    msg._id === tempMessage._id ? { ...msg, pending: false, error: true } : msg
+                    msg._id === tempId ? { ...msg, pending: false, error: true } : msg
                 )
             );
         }
@@ -120,7 +144,11 @@ const ChatPage = () => {
 
     useEffect(() => {
         scrollToBottom();
-    }, [messages]);
+    }, [messages, senderMessages]);
+
+    // Merge messages and senderMessages while maintaining order
+    const allMessages = [...messages, ...senderMessages];
+    allMessages.sort((a, b) => new Date(a.createdAt || a._id) - new Date(b.createdAt || b._id));
 
     return (
         <div className="chat-page">
@@ -134,18 +162,40 @@ const ChatPage = () => {
             </div>
 
             <div className="messages">
-                {messages.length > 0 ? (
-                    messages.map((msg, index) => (
-                        <div
-                            key={msg._id || index}
-                            className={`message ${msg.senderId === loggedInUserId ? "sent" : "received"} 
+                {allMessages.length > 0 ? (
+                    allMessages.map((msg, index) => {
+                        const senderId = msg.sender?._id || msg.senderId; // Handle missing sender case
+                        return (
+                            <div
+                                key={msg._id || index}
+                                className={`message ${senderId === loggedInUserId ? "sent" : "received"}
                                 ${msg.pending ? "pending" : ""} ${msg.error ? "error" : ""}`}
-                            onClick={() => msg.error && sendMessage(msg)} // Retry on click
-                        >
-                            <span>{msg.text}</span>
-                            {msg.error && <small>❌ Failed. Tap to retry.</small>}
-                        </div>
-                    ))
+                                style={{ alignSelf: senderId === loggedInUserId ? "flex-end" : "flex-start" }}
+                                onClick={() => msg.error && sendMessage()}
+                            >
+                                {msg.text && <span>{msg.text}</span>}
+
+                                {msg.fileUrl && (
+                                    <>
+                                        {msg.fileUrl.endsWith(".png") || msg.fileUrl.endsWith(".jpg") || msg.fileUrl.endsWith(".jpeg") || msg.fileUrl.endsWith(".gif") ? (
+                                            <img src={msg.fileUrl} alt="Uploaded file" className="message-file-preview" />
+                                        ) : msg.fileUrl.endsWith(".mp4") || msg.fileUrl.endsWith(".mov") ? (
+                                            <video controls className="message-file-preview">
+                                                <source src={msg.fileUrl} type="video/mp4" />
+                                                Your browser does not support the video tag.
+                                            </video>
+                                        ) : (
+                                            <a href={msg.fileUrl} target="_blank" rel="noopener noreferrer">
+                                                📎 Download File
+                                            </a>
+                                        )}
+                                    </>
+                                )}
+
+                                {msg.error && <small>❌ Failed. Tap to retry.</small>}
+                            </div>
+                        );
+                    })
                 ) : (
                     <p>No messages yet</p>
                 )}
@@ -153,16 +203,25 @@ const ChatPage = () => {
             </div>
 
             <div className="input-area">
+                {filePreview && (
+                    <div className="file-preview">
+                        <img src={filePreview} alt="Preview" className="preview-image" />
+                        <button className="remove-preview" onClick={() => setFilePreview(null)}>✖</button>
+                    </div>
+                )}
+
                 <input
                     type="text"
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     placeholder="Type a message..."
                 />
-                <button onClick={() => sendMessage()}>Send</button>
+                <input type="file" onChange={handleFileChange} style={{ display: "none" }} id="fileInput" />
+                <label htmlFor="fileInput" className="file-upload-button">➕</label>
+                <button onClick={sendMessage}>Send</button>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default ChatPage
+export default ChatPage;

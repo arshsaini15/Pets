@@ -34,26 +34,24 @@
     flex-direction: column;
 }
 
-/* Sent messages (Align right) */
 .message.sent {
     align-self: flex-end;
     background-color: #007bff;
     color: white;
     border-radius: 12px 12px 0 12px;
     padding: 10px 15px;
-    margin: 5px;
+    margin: 5px 0 5px auto;
     max-width: 70%;
     word-wrap: break-word;
 }
 
-/* Received messages (Align left) */
 .message.received {
     align-self: flex-start;
     background-color: #e5e5ea;
     color: black;
     border-radius: 12px 12px 12px 0;
     padding: 10px 15px;
-    margin: 5px;
+    margin: 5px auto 5px 0;
     max-width: 70%;
     word-wrap: break-word;
 }
@@ -86,4 +84,19 @@
 
 .input-area button:hover {
     background-color: #0056b3;
+}
+
+.file-upload-button {
+    font-size: 20px;
+    margin: 0 10px;
+    cursor: pointer;
+    border: none;
+    background: none;
+}
+
+.message-file-preview {
+    max-width: 200px;
+    max-height: 200px;
+    display: block;
+    margin-top: 5px;
 }
