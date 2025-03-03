@@ -1,20 +1,20 @@
 import { useState, useEffect, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { socket } from "./utils/socket.js";
 import axios from "axios";
 import "./ChatPage.css";
 
 const ChatPage = () => {
     const { userId } = useParams();
-    const [messages, setMessages] = useState([]); // Only stores received messages
-    const [senderMessages, setSenderMessages] = useState([]); // Stores sent messages
-    const [newMessage, setNewMessage] = useState(""); // Input message
+    const [messages, setMessages] = useState([]);
+    const [newMessage, setNewMessage] = useState("");
     const [chatUser, setChatUser] = useState(null);
     const [file, setFile] = useState(null);
     const [filePreview, setFilePreview] = useState(null);
     const token = localStorage.getItem("token");
     const loggedInUserId = localStorage.getItem("userId");
     const messagesEndRef = useRef(null);
+    const navigate = useNavigate()
 
     useEffect(() => {
         const storedUserId = localStorage.getItem("userId");
@@ -26,7 +26,7 @@ const ChatPage = () => {
     useEffect(() => {
         socket.on("receiveMessage", (message) => {
             if ((message.sender?._id || message.senderId) === loggedInUserId) return;
-            setMessages((prevMessages) => [...prevMessages, message]);
+            setMessages((prev) => [...prev, message]);
             scrollToBottom();
         });
 
@@ -45,9 +45,11 @@ const ChatPage = () => {
                     axios.get(`http://localhost:8000/api/v1/chats/history/${userId}`, {
                         headers: { Authorization: `Bearer ${token}` },
                     }),
-                ]);
+                ])
 
-                setChatUser(userRes.data);
+                setChatUser(userRes.data)
+                console.log(userRes.data)
+                
                 setMessages(messagesRes.data || []);
                 scrollToBottom();
             } catch (error) {
@@ -71,8 +73,8 @@ const ChatPage = () => {
     useEffect(() => {
         socket.on("messageSent", (message) => {
             if ((message.sender?._id || message.senderId) !== loggedInUserId) return;
-            setSenderMessages((prevMessages) =>
-                prevMessages.map((msg) =>
+            setMessages((prev) =>
+                prev.map((msg) =>
                     msg._id === message.tempId
                         ? { ...message, pending: false, error: false }
                         : msg
@@ -97,7 +99,7 @@ const ChatPage = () => {
         const tempId = Date.now();
         const tempMessage = {
             _id: tempId,
-            sender: { _id: loggedInUserId }, // Ensure sender is always an object
+            sender: { _id: loggedInUserId },
             receiverId: userId,
             text: newMessage,
             fileUrl: filePreview,
@@ -106,7 +108,7 @@ const ChatPage = () => {
             error: false,
         };
 
-        setSenderMessages((prev) => [...prev, tempMessage]); // Show sent message instantly
+        setMessages((prev) => [...prev, tempMessage]); // Directly append to messages
         setNewMessage("");
         setFile(null);
         setFilePreview(null);
@@ -130,7 +132,7 @@ const ChatPage = () => {
             }
         } catch (error) {
             console.error("❌ Error sending message:", error);
-            setSenderMessages((prev) =>
+            setMessages((prev) =>
                 prev.map((msg) =>
                     msg._id === tempId ? { ...msg, pending: false, error: true } : msg
                 )
@@ -144,11 +146,11 @@ const ChatPage = () => {
 
     useEffect(() => {
         scrollToBottom();
-    }, [messages, senderMessages]);
+    }, [messages]);
 
-    // Merge messages and senderMessages while maintaining order
-    const allMessages = [...messages, ...senderMessages];
-    allMessages.sort((a, b) => new Date(a.createdAt || a._id) - new Date(b.createdAt || b._id));
+    const showProfile = (personId) => {
+        navigate(`/profile/${personId}`)
+    }
 
     return (
         <div className="chat-page">
@@ -156,15 +158,20 @@ const ChatPage = () => {
                 {chatUser && (
                     <>
                         <img src={chatUser.profileImage} alt="User" className="profile-photo" />
-                        <h2>{chatUser.name}</h2>
+                        <h2 
+                            onClick={() => chatUser?._id && showProfile(chatUser._id)}
+                            style={{ cursor: "pointer"}}
+                        >
+                            {chatUser?.username}
+                        </h2>
                     </>
                 )}
             </div>
 
             <div className="messages">
-                {allMessages.length > 0 ? (
-                    allMessages.map((msg, index) => {
-                        const senderId = msg.sender?._id || msg.senderId; // Handle missing sender case
+                {messages.length > 0 ? (
+                    messages.map((msg, index) => {
+                        const senderId = msg.sender?._id || msg.senderId;
                         return (
                             <div
                                 key={msg._id || index}
@@ -206,20 +213,25 @@ const ChatPage = () => {
                 {filePreview && (
                     <div className="file-preview">
                         <img src={filePreview} alt="Preview" className="preview-image" />
-                        <button className="remove-preview" onClick={() => setFilePreview(null)}>✖</button>
-                    </div>
-                )}
-
-                <input
-                    type="text"
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    placeholder="Type a message..."
-                />
-                <input type="file" onChange={handleFileChange} style={{ display: "none" }} id="fileInput" />
-                <label htmlFor="fileInput" className="file-upload-button">➕</label>
-                <button onClick={sendMessage}>Send</button>
+                        <button className="remove-preview" onClick={() => {
+                            setFilePreview(null);
+                            setFile(null);
+                        }}>✖</button>
             </div>
+                )}
+    
+    <div className="input-controls">
+        <input
+            type="text"
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            placeholder="Type a message..."
+        />
+        <input type="file" onChange={handleFileChange} style={{ display: "none" }} id="fileInput" />
+        <label htmlFor="fileInput" className="file-upload-button">➕</label>
+        <button onClick={sendMessage}>Send</button>
+    </div>
+</div>
         </div>
     );
 };

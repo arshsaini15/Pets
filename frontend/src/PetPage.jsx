@@ -161,7 +161,7 @@ const PetPage = () => {
                     className="chat-button"
                     onClick={(e) => {
                       e.stopPropagation();
-                      addToListAndNavigate(pet.owner);
+                      addToListAndNavigate(pet.ownerId)
                     }}
                   >
                     Contact Owner

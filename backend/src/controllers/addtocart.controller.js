@@ -29,3 +29,26 @@ export const addToCart = asyncHandler(async (req, res) => {
 
     res.status(200).json({ message: 'Product added to cart', cart })
 })
+
+export const deleteFromCart = asyncHandler(async (req, res) => {
+    const { productId } = req.params
+    const userId = req.userId
+
+    let cart = await Cart.findOne({ user: userId })
+    if (!cart) {
+        return res.status(404).json({ message: 'Cart not found' })
+    }
+
+    // Filter out the product from the cart
+    const updatedProducts = cart.products.filter(item => item.product.toString() !== productId)
+
+    // If no change, product was not in the cart
+    if (updatedProducts.length === cart.products.length) {
+        return res.status(404).json({ message: 'Product not found in cart' })
+    }
+
+    cart.products = updatedProducts
+    await cart.save()
+
+    res.status(200).json({ message: 'Product removed from cart', cart })
+})

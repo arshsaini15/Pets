@@ -98,7 +98,7 @@ const PetProfile = () => {
             <h2 className="pet-name">{pet.name}</h2>
             <p className="breed-info">{pet.breed || 'Unknown Breed'}</p>
             <p className="age-display">{pet.age} years old</p>
-            <p className="description-text">{pet.description || 'No description available'}</p>
+            <p className="age-display">{pet.description || 'No description available'}</p>
 
             <button className="contact-button" onClick={chatWithOwner}>
               Contact Owner

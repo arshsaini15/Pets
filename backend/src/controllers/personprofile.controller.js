@@ -16,6 +16,7 @@ export const getPersonProfile = asyncHandler(async (req, res) => {
         profileImage: user.profileImage,
         bio: user.bio,
         connections: user.connections,
+        _id: userId
     })
 })
 

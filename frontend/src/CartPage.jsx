@@ -34,22 +34,79 @@ const CartPage = () => {
             alert("Please enter your address before proceeding.");
             return;
         }
-
+    
+        let finalAmount = totalPrice * 100; // Convert to paise
+    
+        // Razorpay Max Limit Check
+        const MAX_RAZORPAY_AMOUNT = 50000000; // ₹5,00,000 in paise
+        if (finalAmount > MAX_RAZORPAY_AMOUNT) {
+            alert("The total amount exceeds the allowed transaction limit. Please reduce your cart value.");
+            return;
+        }
+    
+        console.log("Final amount being sent:", finalAmount);
+    
         try {
             const token = localStorage.getItem("token");
-            await axios.post(
-                "http://localhost:8000/api/v1/cart/checkout",
-                { address },
+            const response = await axios.post(
+                "http://localhost:8000/api/v1/cart/create-order",
+                { address, amount: finalAmount }, // Corrected
                 { headers: { Authorization: `Bearer ${token}` } }
             );
-            alert("Order placed successfully!");
-            setCartItems([]); // Clear cart after successful checkout
+    
+            const { order } = response.data;
+            if (!order) {
+                alert("Failed to create order. Please try again.");
+                return;
+            }
+    
+            const options = {
+                key: "rzp_test_lnw8y27v4NY3zx",
+                amount: order.amount,
+                currency: "INR",
+                name: "PetAdoption",
+                description: "Order Payment",
+                order_id: order.id,
+                handler: async function (response) {
+                    console.log("Payment Successful:", response);
+                    try {
+                        await axios.post(
+                            "http://localhost:8000/api/v1/cart/verify-payment",
+                            { 
+                                razorpay_payment_id: response.razorpay_payment_id, 
+                                razorpay_order_id: response.razorpay_order_id, 
+                                razorpay_signature: response.razorpay_signature 
+                            },
+                            { headers: { Authorization: `Bearer ${token}` } }
+                        );
+                        alert("Payment successful! Order placed.");
+                        setCartItems([]);
+                    } catch (err) {
+                        console.error("Payment verification failed:", err);
+                        alert("Payment verification failed. Please contact support.");
+                    }
+                },
+                prefill: {
+                    name: "Arshdeep",
+                    email: "arshdeepp015@gmail.com",
+                    contact: "9306403708",
+                },
+                theme: { color: "#3399cc" },
+            };
+    
+            if (!window.Razorpay) {
+                alert("Razorpay SDK failed to load. Refresh and try again.");
+                return;
+            }
+    
+            const razor = new window.Razorpay(options);
+            razor.open();
         } catch (err) {
-            console.error("Error during checkout:", err);
-            alert("Failed to place order. Please try again.");
+            console.error("Error initiating payment:", err);
+            alert("Failed to initiate payment. Please try again.");
         }
-    };
-
+    }
+    
     const handleRemoveFromCart = async (productId) => {
         try {
             const token = localStorage.getItem("token");

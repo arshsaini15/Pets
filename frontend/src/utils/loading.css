@@ -1,0 +1,52 @@
+.paw-walking-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh; /* Full screen height */
+    background-color: #f9f9f9; /* Light background */
+    font-size: 24px;
+    font-weight: bold;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 999;
+}
+
+.paw-track {
+    display: flex;
+    gap: 20px; /* Space between paws */
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.paw {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(20px);
+    font-size: 40px;
+    animation: walkPaws 1.2s linear infinite;
+}
+
+/* Delay each paw to create a step-by-step effect */
+.paw:nth-child(1) { animation-delay: 0s; }
+.paw:nth-child(2) { animation-delay: 0.2s; }
+.paw:nth-child(3) { animation-delay: 0.4s; }
+.paw:nth-child(4) { animation-delay: 0.6s; }
+.paw:nth-child(5) { animation-delay: 0.8s; }
+
+@keyframes walkPaws {
+    0% {
+        opacity: 0;
+        transform: translateY(20px) translateX(0);
+    }
+    50% {
+        opacity: 1;
+        transform: translateY(0) translateX(10px);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-10px) translateX(20px);
+    }
+}

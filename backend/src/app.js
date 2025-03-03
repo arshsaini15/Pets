@@ -70,6 +70,8 @@ import AddCommentRouter from './routes/discusscomments.routes.js'
 // cart
 import AddToCartRouter from './routes/addtocart.routes.js'
 import showCartRouter from './routes/showcart.routes.js'
+import razorPayRouter from './routes/razorpay.routes.js'
+import cryptoRouter from './routes/crypto.routes.js'
 
 // client
 app.use("/api/v1/users", userRouter)
@@ -117,6 +119,8 @@ app.use("/api/v1/discuss", AddCommentRouter)
 // cart
 app.use("/api/v1/cart", AddToCartRouter)
 app.use("/api/v1/cart", showCartRouter)
+app.use("/api/v1/cart", razorPayRouter)
+app.use("/api/v1/cart", cryptoRouter)
 
 // product
 app.use("/api/v1/products", productDetailsRouter)

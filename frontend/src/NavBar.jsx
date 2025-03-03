@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { FaPaw } from "react-icons/fa"; // Import a stylish paw icon
 import "./Navbar.css";
 
 const Navbar = () => {
@@ -43,7 +44,9 @@ const Navbar = () => {
 
     return (
         <nav className="navbar">
-            <Link to="/" className="navbar-logo"><h1>🐾</h1></Link>
+            <Link to="/" className="navbar-logo">
+                <FaPaw className="paw-icon" />
+            </Link>
             <ul className="navbar-links">
                 <li><Link to="/pets">Pets</Link></li>
                 <li><Link to="/items">Items</Link></li>
