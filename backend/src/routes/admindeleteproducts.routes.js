@@ -17,4 +17,5 @@ router.delete("/products/:id", async(req, res) => {
     }
 })
 
+
 export default router

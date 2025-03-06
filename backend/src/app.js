@@ -57,6 +57,7 @@ import getPetsRouter from './routes/getpets.routes.js'
 import allPetsRouter from './routes/allpets.routes.js'
 import petProfileRouter from './routes/getpetprofile.routes.js'
 import petsNearMeRouter from './routes/petnearme.routes.js'
+import wishlistRouter from './routes/wishlist.routes.js'
 
 // products
 import productDetailsRouter from './routes/productdetail.routes.js'
@@ -109,6 +110,7 @@ app.use("/api/v1/pets", allPetsRouter)
 app.use("/api/v1/pets", petProfileRouter)
 app.use("/api/v1/pets", petProfileRouter)
 app.use("/api/v1/pets", petsNearMeRouter)
+app.use("/api/v1/pets", wishlistRouter)
 
 // discuss
 app.use("/api/v1/discuss", discussAddPostRouter)

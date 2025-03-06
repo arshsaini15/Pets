@@ -14,7 +14,46 @@ const ChatPage = () => {
     const token = localStorage.getItem("token");
     const loggedInUserId = localStorage.getItem("userId");
     const messagesEndRef = useRef(null);
-    const navigate = useNavigate()
+    const navigate = useNavigate();
+
+    // Date formatting utility functions
+    const formatMessageDate = (timestamp) => {
+        const messageDate = new Date(timestamp);
+        const today = new Date();
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+
+        const formatOptions = { weekday: 'long', month: 'short', day: 'numeric' };
+        
+        if (messageDate.toDateString() === today.toDateString()) {
+            return 'Today';
+        } else if (messageDate.toDateString() === yesterday.toDateString()) {
+            return 'Yesterday';
+        } else {
+            return messageDate.toLocaleDateString(undefined, formatOptions);
+        }
+    };
+
+    const formatMessageTime = (timestamp) => {
+        return new Date(timestamp).toLocaleTimeString([], { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+        });
+    };
+
+    const groupMessagesByDate = (messages) => {
+        const groupedMessages = {};
+        
+        messages.forEach(msg => {
+            const date = formatMessageDate(msg.timestamp || Date.now());
+            if (!groupedMessages[date]) {
+                groupedMessages[date] = [];
+            }
+            groupedMessages[date].push(msg);
+        });
+        
+        return groupedMessages;
+    };
 
     useEffect(() => {
         const storedUserId = localStorage.getItem("userId");
@@ -45,11 +84,9 @@ const ChatPage = () => {
                     axios.get(`http://localhost:8000/api/v1/chats/history/${userId}`, {
                         headers: { Authorization: `Bearer ${token}` },
                     }),
-                ])
+                ]);
 
-                setChatUser(userRes.data)
-                console.log(userRes.data)
-                
+                setChatUser(userRes.data);
                 setMessages(messagesRes.data || []);
                 scrollToBottom();
             } catch (error) {
@@ -106,9 +143,10 @@ const ChatPage = () => {
             fileType: file ? file.type : null,
             pending: true,
             error: false,
+            timestamp: new Date().toISOString(),
         };
 
-        setMessages((prev) => [...prev, tempMessage]); // Directly append to messages
+        setMessages((prev) => [...prev, tempMessage]);
         setNewMessage("");
         setFile(null);
         setFilePreview(null);
@@ -149,15 +187,22 @@ const ChatPage = () => {
     }, [messages]);
 
     const showProfile = (personId) => {
-        navigate(`/profile/${personId}`)
-    }
+        navigate(`/profile/${personId}`);
+    };
+
+    // Group messages by date
+    const groupedMessages = groupMessagesByDate(messages);
 
     return (
         <div className="chat-page">
             <div className="chat-header">
                 {chatUser && (
                     <>
-                        <img src={chatUser.profileImage} alt="User" className="profile-photo" />
+                        <img 
+                            src={chatUser.profileImage} 
+                            alt="User" 
+                            className="profile-photo" 
+                        />
                         <h2 
                             onClick={() => chatUser?._id && showProfile(chatUser._id)}
                             style={{ cursor: "pointer"}}
@@ -169,40 +214,60 @@ const ChatPage = () => {
             </div>
 
             <div className="messages">
-                {messages.length > 0 ? (
-                    messages.map((msg, index) => {
-                        const senderId = msg.sender?._id || msg.senderId;
-                        return (
-                            <div
-                                key={msg._id || index}
-                                className={`message ${senderId === loggedInUserId ? "sent" : "received"}
-                                ${msg.pending ? "pending" : ""} ${msg.error ? "error" : ""}`}
-                                style={{ alignSelf: senderId === loggedInUserId ? "flex-end" : "flex-start" }}
-                                onClick={() => msg.error && sendMessage()}
-                            >
-                                {msg.text && <span>{msg.text}</span>}
+                {Object.entries(groupedMessages).length > 0 ? (
+                    Object.entries(groupedMessages).map(([date, dayMessages]) => (
+                        <div key={date} className="message-group">
+                            <div className="message-date-separator">{date}</div>
+                            {dayMessages.map((msg, index) => {
+                                const senderId = msg.sender?._id || msg.senderId;
+                                return (
+                                    <div
+                                        key={msg._id || index}
+                                        className={`message ${senderId === loggedInUserId ? "sent" : "received"}
+                                        ${msg.pending ? "pending" : ""} ${msg.error ? "error" : ""}`}
+                                        style={{ alignSelf: senderId === loggedInUserId ? "flex-end" : "flex-start" }}
+                                        onClick={() => msg.error && sendMessage()}
+                                    >
+                                        {msg.text && <span>{msg.text}</span>}
 
-                                {msg.fileUrl && (
-                                    <>
-                                        {msg.fileUrl.endsWith(".png") || msg.fileUrl.endsWith(".jpg") || msg.fileUrl.endsWith(".jpeg") || msg.fileUrl.endsWith(".gif") ? (
-                                            <img src={msg.fileUrl} alt="Uploaded file" className="message-file-preview" />
-                                        ) : msg.fileUrl.endsWith(".mp4") || msg.fileUrl.endsWith(".mov") ? (
-                                            <video controls className="message-file-preview">
-                                                <source src={msg.fileUrl} type="video/mp4" />
-                                                Your browser does not support the video tag.
-                                            </video>
-                                        ) : (
-                                            <a href={msg.fileUrl} target="_blank" rel="noopener noreferrer">
-                                                📎 Download File
-                                            </a>
+                                        {msg.fileUrl && (
+                                            <>
+                                                {msg.fileUrl.endsWith(".png") || msg.fileUrl.endsWith(".jpg") || msg.fileUrl.endsWith(".jpeg") || msg.fileUrl.endsWith(".gif") ? (
+                                                    <img 
+                                                        src={msg.fileUrl} 
+                                                        alt="Uploaded file" 
+                                                        className="message-file-preview" 
+                                                    />
+                                                ) : msg.fileUrl.endsWith(".mp4") || msg.fileUrl.endsWith(".mov") ? (
+                                                    <video 
+                                                        controls 
+                                                        className="message-file-preview"
+                                                    >
+                                                        <source src={msg.fileUrl} type="video/mp4" />
+                                                        Your browser does not support the video tag.
+                                                    </video>
+                                                ) : (
+                                                    <a 
+                                                        href={msg.fileUrl} 
+                                                        target="_blank" 
+                                                        rel="noopener noreferrer"
+                                                    >
+                                                        📎 Download File
+                                                    </a>
+                                                )}
+                                            </>
                                         )}
-                                    </>
-                                )}
 
-                                {msg.error && <small>❌ Failed. Tap to retry.</small>}
-                            </div>
-                        );
-                    })
+                                        <div className="message-timestamp">
+                                            {formatMessageTime(msg.timestamp)}
+                                        </div>
+
+                                        {msg.error && <small>❌ Failed. Tap to retry.</small>}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    ))
                 ) : (
                     <p>No messages yet</p>
                 )}
@@ -212,26 +277,45 @@ const ChatPage = () => {
             <div className="input-area">
                 {filePreview && (
                     <div className="file-preview">
-                        <img src={filePreview} alt="Preview" className="preview-image" />
-                        <button className="remove-preview" onClick={() => {
-                            setFilePreview(null);
-                            setFile(null);
-                        }}>✖</button>
-            </div>
+                        <img 
+                            src={filePreview} 
+                            alt="Preview" 
+                            className="preview-image" 
+                        />
+                        <button 
+                            className="remove-preview" 
+                            onClick={() => {
+                                setFilePreview(null);
+                                setFile(null);
+                            }}
+                        >
+                            ✖
+                        </button>
+                    </div>
                 )}
     
-    <div className="input-controls">
-        <input
-            type="text"
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Type a message..."
-        />
-        <input type="file" onChange={handleFileChange} style={{ display: "none" }} id="fileInput" />
-        <label htmlFor="fileInput" className="file-upload-button">➕</label>
-        <button onClick={sendMessage}>Send</button>
-    </div>
-</div>
+                <div className="input-controls">
+                    <input
+                        type="text"
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        placeholder="Type a message..."
+                    />
+                    <input 
+                        type="file" 
+                        onChange={handleFileChange} 
+                        style={{ display: "none" }} 
+                        id="fileInput" 
+                    />
+                    <label 
+                        htmlFor="fileInput" 
+                        className="file-upload-button"
+                    >
+                        ➕
+                    </label>
+                    <button onClick={sendMessage}>Send</button>
+                </div>
+            </div>
         </div>
     );
 };

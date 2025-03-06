@@ -19,6 +19,7 @@ import OtherProfile from "./OtherProfile";
 import SettingsPage from "./Settings";
 import PetPage from "./PetPage";
 import PetProfile from "./PetProfile";
+import WishList from "./WishList";
 
 function App() {
     const [loading, setLoading] = useState(true);
@@ -53,6 +54,7 @@ function App() {
                     <Route path="/settings" element={<SettingsPage />} />
                     <Route path="/pets" element={<PetPage />} />
                     <Route path="/pets/:petId" element={<PetProfile />} />
+                    <Route path="/wishlist" element={<WishList />} />
                     <Route path="*" element={<Navigate to="/" />} />
                 </Routes>
             )}

@@ -53,8 +53,8 @@ const petSchema = new mongoose.Schema({
             type: String,
         },
     },
-}, { timestamps: true });
+}, { timestamps: true })
 
-petSchema.index({ location: "2dsphere" });
+petSchema.index({ location: "2dsphere" })
 
-export const Pet = mongoose.model('Pet', petSchema);
+export const Pet = mongoose.model('Pet', petSchema)

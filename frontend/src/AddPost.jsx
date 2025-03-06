@@ -225,8 +225,13 @@ const AddPostPage = () => {
                     </div>
 
                     <button type="submit" disabled={loading}>
-                        {loading ? "Adding Pet..." : "Add Pet"}
+                        {loading ? (
+                            <>
+                                Adding Pet... <span className="spinner"></span>
+                            </>
+                        ) : "Add Pet"}
                     </button>
+
                     {error && <p className="error-message">{error}</p>}
                 </form>
             </div>

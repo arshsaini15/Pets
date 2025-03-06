@@ -7,9 +7,8 @@ const PetPage = () => {
   const [pets, setPets] = useState([])
   const [nearbyPets, setNearbyPets] = useState([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
   const [locationError, setLocationError] = useState(null)
-  const [showNearby, setShowNearby] = useState(false) // Toggle state for nearby pets
+  const [showNearby, setShowNearby] = useState(false)
   const token = localStorage.getItem('token')
   const navigate = useNavigate()
 
@@ -22,160 +21,131 @@ const PetPage = () => {
             Authorization: `Bearer ${token}`,
             userId,
           },
-        });
+        })
 
-        console.log('Fetched Pets:', res.data);
-
-        if (Array.isArray(res.data)) {
-          setPets(res.data);
-        } else {
-          setPets([]); // Set empty array if response is unexpected
-        }
+        setPets(Array.isArray(res.data) ? res.data : [])
       } catch (err) {
-        console.error('Error fetching pets:', err);
+        console.error('Error fetching pets:', err)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    fetchPets();
-  }, [token]);
+    fetchPets()
+  }, [token])
 
   const fetchNearbyPets = () => {
     if (!navigator.geolocation) {
-      setLocationError('Geolocation is not supported by your browser.');
-      return;
+      setLocationError('Geolocation is not supported by your browser.')
+      return
     }
 
-    // Toggle visibility
     setShowNearby((prevShowNearby) => {
       if (!prevShowNearby) {
         navigator.geolocation.getCurrentPosition(
           async (position) => {
-            const { latitude, longitude } = position.coords;
+            const { latitude, longitude } = position.coords
             try {
               const res = await axios.get(
                 `http://localhost:8000/api/v1/pets/nearby?lat=${latitude}&lon=${longitude}`,
                 {
                   headers: { Authorization: `Bearer ${token}` },
                 }
-              );
+              )
 
-              console.log('Nearby Pets:', res.data);
-
-              if (Array.isArray(res.data.data)) {
-                setNearbyPets(res.data.data);
-              } else {
-                setNearbyPets([]);
-              }
+              setNearbyPets(Array.isArray(res.data.data) ? res.data.data : [])
             } catch (err) {
-              console.error('Error fetching nearby pets:', err);
+              console.error('Error fetching nearby pets:', err)
             }
           },
           () => {
-            setLocationError('Unable to retrieve your location.');
+            setLocationError('Unable to retrieve your location.')
           }
-        );
+        )
       }
-      return !prevShowNearby; // Toggle state
-    });
-  };
+      return !prevShowNearby
+    })
+  }
 
-  const addToListAndNavigate = async (chatUserId) => {
+  const handleWishlist = async (petId) => {
     try {
-      if (!chatUserId) throw new Error('chatUserId is required');
-
       await axios.post(
-        'http://localhost:8000/api/v1/chats/addtolist',
-        { chatUserId },
+        'http://localhost:8000/api/v1/pets/wishlist',
+        { petId },
         { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      navigate(`/chat/${chatUserId}`);
+      )
+      alert('Pet added to wishlist!')
     } catch (error) {
-      console.error('Error adding user to chat list:', error);
+      console.error('Error adding to wishlist:', error)
     }
-  };
+  }
 
   const handlePetClick = (petId) => {
-    navigate(`/pets/${petId}`);
-  };
+    navigate(`/pets/${petId}`)
+  }
 
   return (
     <div className="pet-page-container">
-      <h1 className="pet-page-heading">Find Your Perfect Pet</h1>
-      <button className="nearby-pets-btn" onClick={fetchNearbyPets}>
-        {showNearby ? 'Show All Pets' : 'Show Pets Near Me'}
-      </button>
+      <div className="top-buttons">
+        <button className="wishlist-page-btn" onClick={() => navigate('/wishlist')}>
+          ❤️ Wishlist
+        </button>
+        <button className="nearby-pets-btn" onClick={fetchNearbyPets}>
+          {showNearby ? 'Show All Pets' : 'Show Pets Near Me'}
+        </button>
+      </div>
 
       {locationError && <div className="error-message">{locationError}</div>}
       {loading && <div className="loading-message">Loading...</div>}
 
       {showNearby ? (
         nearbyPets.length > 0 ? (
-          <div className="nearby-pets-section">
-            <h2 className="section-heading">Pets Near You</h2>
-            <div className="pet-grid">
-              {nearbyPets.map((pet) => (
-                <div key={pet._id} className="pet-item" onClick={() => handlePetClick(pet._id)}>
-                  <img
-                    src={pet.imageUrl || 'default-image-url.jpg'}
-                    alt={pet.name}
-                    className="pet-thumbnail"
-                  />
-                  <h3 className="pet-title">{pet.name}</h3>
-                  <p className="pet-location">{pet.location?.address || 'Location not available'}</p>
-                  <p className="pet-category">{pet.breed || 'Unknown Breed'}</p>
-                  <button
-                    className="chat-button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      addToListAndNavigate(pet.owner);
-                    }}
-                  >
-                    Contact Owner
-                  </button>
-                </div>
-              ))}
-            </div>
+          <div className="pet-grid">
+            {nearbyPets.map((pet) => (
+              <div key={pet._id} className="pet-item" onClick={() => handlePetClick(pet._id)}>
+                <img src={pet.imageUrl || 'default-image-url.jpg'} alt={pet.name} className="pet-thumbnail" />
+                <h3 className="pet-title">{pet.name}</h3>
+                <p className="pet-location">{pet.location?.address || 'Location not available'}</p>
+                <button
+                  className="wishlist-button"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleWishlist(pet._id)
+                  }}
+                >
+                  ❤️
+                </button>
+              </div>
+            ))}
           </div>
         ) : (
           <div className="no-pets-message">No nearby pets found.</div>
         )
       ) : (
-        <>
-          <h2 className="section-heading">All Pets</h2>
-          <div className="pet-grid">
-            {pets.length > 0 ? (
-              pets.map((pet) => (
-                <div key={pet._id} className="pet-item" onClick={() => handlePetClick(pet._id)}>
-                  <img
-                    src={pet.imageUrl || 'default-image-url.jpg'}
-                    alt={pet.name}
-                    className="pet-thumbnail"
-                  />
-                  <h3 className="pet-title">{pet.name}</h3>
-                  <p className="pet-category">{pet.breed || 'Unknown Breed'}</p>
-                  <p className="pet-location">{pet.location?.address || 'Location not available'}</p>
-                  <button
-                    className="chat-button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      addToListAndNavigate(pet.ownerId)
-                    }}
-                  >
-                    Contact Owner
-                  </button>
-                </div>
-              ))
-            ) : (
-              <div className="no-pets-message">No pets found.</div>
-            )}
-          </div>
-        </>
+        <div className="pet-grid">
+          {pets.length > 0 ? (
+            pets.map((pet) => (
+              <div key={pet._id} className="pet-item" onClick={() => handlePetClick(pet._id)}>
+                <img src={pet.imageUrl || 'default-image-url.jpg'} alt={pet.name} className="pet-thumbnail" />
+                <h3 className="pet-title">{pet.name}</h3>
+                <button
+                  className="wishlist-button"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleWishlist(pet._id)
+                  }}
+                >
+                  ❤️
+                </button>
+              </div>
+            ))
+          ) : (
+            <div className="no-pets-message">No pets found.</div>
+          )}
+        </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default PetPage;
+export default PetPage

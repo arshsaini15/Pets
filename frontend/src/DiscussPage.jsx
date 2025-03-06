@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./DiscussPage.css";
@@ -10,6 +10,7 @@ const DiscussPage = () => {
     const [comments, setComments] = useState({});
     const [newPost, setNewPost] = useState({ title: "", content: "", category: "" });
     const [filters, setFilters] = useState(new Set(JSON.parse(localStorage.getItem("filters")) || []));
+    const [likedPosts, setLikedPosts] = useState(new Set(JSON.parse(localStorage.getItem("likedPosts")) || []));
     const token = localStorage.getItem("token");
     const navigate = useNavigate();
 
@@ -21,12 +22,23 @@ const DiscussPage = () => {
         localStorage.setItem("filters", JSON.stringify([...filters]));
     }, [filters]);
 
+    useEffect(() => {
+        localStorage.setItem("likedPosts", JSON.stringify([...likedPosts]));
+    }, [likedPosts]);
+
     const fetchPosts = async () => {
         try {
             const res = await axios.get("http://localhost:8000/api/v1/discuss/allposts", {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            setPosts(res.data);
+            
+            // Add likedByUser property based on localStorage
+            const updatedPosts = res.data.map(post => ({
+                ...post,
+                likedByUser: likedPosts.has(post._id)
+            }));
+            
+            setPosts(updatedPosts);
         } catch (error) {
             setError("Failed to fetch discussions. Please try again later.");
             console.error("Error fetching discussions:", error);
@@ -54,11 +66,23 @@ const DiscussPage = () => {
                 {},
                 { headers: { Authorization: `Bearer ${token}` } }
             );
+            
             setPosts(posts.map(post =>
                 post._id === postId
                 ? { ...post, likes: res.data.likes, likedByUser: res.data.likedByUser }
                 : post
             ));
+
+            // Update liked posts in localStorage
+            setLikedPosts(prevLikedPosts => {
+                const newLikedPosts = new Set(prevLikedPosts);
+                if (res.data.likedByUser) {
+                    newLikedPosts.add(postId);
+                } else {
+                    newLikedPosts.delete(postId);
+                }
+                return newLikedPosts;
+            });
         } catch (error) {
             alert('You are not authorized');
             console.error("Error liking post:", error);
@@ -151,15 +175,20 @@ const DiscussPage = () => {
                     value={newPost.content}
                     onChange={handleNewPostChange}
                 />
-                <input
-                    type="text"
+                <select
                     name="category"
-                    placeholder="Category"
                     value={newPost.category}
                     onChange={handleNewPostChange}
-                />
+                >
+                    <option value="">Select Category</option>
+                    <option value="Facts">Facts</option>
+                    <option value="Health">Health</option>
+                    <option value="General">General</option>
+                    <option value="Training">Training</option>
+                </select>
                 <button onClick={handleAddPost}>Add Post</button>
             </div>
+
 
             <div className="filter-buttons">
                 {["Facts", "Health", "General", "Training"].map((category) => (

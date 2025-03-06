@@ -64,3 +64,25 @@ button:disabled {
     font-size: 1rem;
     margin-top: 10px;
 }
+
+.spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top: 3px solid #ffffff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-left: 10px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Disable Button Styling */
+button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}

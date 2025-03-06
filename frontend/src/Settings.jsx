@@ -6,7 +6,6 @@ import "./Settings.css";
 const SettingsPage = () => {
     const navigate = useNavigate();
     const token = localStorage.getItem("token");
-    const userId = localStorage.getItem("userId");
     const username = localStorage.getItem("username");
 
     const [userData, setUserData] = useState({
@@ -22,6 +21,7 @@ const SettingsPage = () => {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
     const [activeSection, setActiveSection] = useState(null);
+    const [loadingProfileImage, setLoadingProfileImage] = useState(false);
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -100,21 +100,30 @@ const SettingsPage = () => {
     const handleProfileImageUpdate = async (e) => {
         e.preventDefault();
         try {
+            setLoadingProfileImage(true); // Show spinner
+    
             const formData = new FormData();
             formData.append("profileImage", newProfileImage);
-
-            await axios.patch("http://localhost:8000/api/v1/users/update-profile-image", formData, {
+    
+            const response = await axios.patch("http://localhost:8000/api/v1/users/update-profile-image", formData, {
                 headers: { 
                     Authorization: `Bearer ${token}`, 
                     "Content-Type": "multipart/form-data" 
                 },
                 withCredentials: true,
             });
+    
             alert("Profile photo updated successfully!");
+            
+            // Update the profile image in state immediately
+            setUserData(prev => ({ ...prev, profileImage: response.data.profileImage }));
         } catch (err) {
             setError("Failed to update profile photo.");
+        } finally {
+            setLoadingProfileImage(false); // Hide spinner
         }
     };
+    
 
     const handlePasswordChange = async (e) => {
         e.preventDefault();
@@ -157,22 +166,24 @@ const SettingsPage = () => {
                 {error && <div className="error-message">{error}</div>}
 
                 <div className="settings-section">
-                    <h2 onClick={() => toggleSection("username")}>Edit Username</h2>
-                    {activeSection === "username" && (
-                        <form onSubmit={handleUsernameUpdate}>
-                            <input
-                                type="text"
-                                value={userData.username}
-                                onChange={(e) => setUserData({ ...userData, username: e.target.value })}
-                                required
-                            />
-                            <button type="submit">Update Username</button>
+                    <h2 onClick={() => toggleSection("profilePhoto")}>Change Profile Photo</h2>
+                    {activeSection === "profilePhoto" && (
+                        <form onSubmit={handleProfileImageUpdate}>
+                            <input type="file" accept="image/*" onChange={(e) => setNewProfileImage(e.target.files[0])} />
+                            {userData.profileImage && <img src={userData.profileImage} alt="Profile" className="profile-image-preview" />}
+                            
+                            {loadingProfileImage ? (
+                                <div className="spinner"></div> // Add CSS spinner
+                            ) : (
+                                <button type="submit">Update Profile Photo</button>
+                            )}
                         </form>
                     )}
                 </div>
 
+
                 <div className="settings-section">
-                    <h2 onClick={() => toggleSection("bio")}>Edit Bio</h2>
+                    <h2 onClick={() => toggleSection("bio")}>Change Bio</h2>
                     {activeSection === "bio" && (
                         <form onSubmit={handleBioUpdate}>
                             <textarea

@@ -33,7 +33,7 @@ const userSchema = new mongoose.Schema({
     favourites: [
         {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "Pet",  // Stores reference to favorited pets for adoption
+            ref: "Pet",
         },
     ],
     adoptionApplications: [

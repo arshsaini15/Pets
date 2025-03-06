@@ -204,3 +204,45 @@
     width: 70px;
     flex-shrink: 0;
 }
+
+.message-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.message-date-separator {
+    background-color: #f0f0f0;
+    color: #888;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    margin: 10px 0;
+    align-self: center;
+}
+
+.message {
+    position: relative;
+    max-width: 70%;
+    margin: 5px 0;
+    padding: 10px 15px 20px 15px; /* Added extra padding at bottom for timestamp */
+}
+
+.message-timestamp {
+    position: absolute;
+    bottom: 0.1px;
+    right: 14px;
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.message.sent .message-timestamp {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.message.received .message-timestamp {
+    color: rgba(0, 0, 0, 0.5);
+}
