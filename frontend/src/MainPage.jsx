@@ -9,7 +9,7 @@ const MainPage = () => {
 
     useEffect(() => {
         const isLoggedIn = !!localStorage.getItem("token");
-        setButtonValue(isLoggedIn ? "Exlpore Pets" : "Get Started");
+        setButtonValue(isLoggedIn ? "Explore Pets" : "Get Started");
     }, []);
 
     const handleButtonClick = () => {
