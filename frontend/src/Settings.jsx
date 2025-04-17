@@ -210,18 +210,6 @@ const SettingsPage = () => {
                         </form>
                     )}
                 </div>
-
-                <div className="settings-section">
-                    <h2 onClick={() => toggleSection("profilePhoto")}>Change Profile Photo</h2>
-                    {activeSection === "profilePhoto" && (
-                        <form onSubmit={handleProfileImageUpdate}>
-                            <input type="file" accept="image/*" onChange={(e) => setNewProfileImage(e.target.files[0])} />
-                            {userData.profileImage && <img src={userData.profileImage} alt="Profile" className="profile-image-preview" />}
-                            <button type="submit">Update Profile Photo</button>
-                        </form>
-                    )}
-                </div>
-
                 <div className="settings-section">
                     <h2 onClick={() => toggleSection("password")}>Change Password</h2>
                     {activeSection === "password" && (

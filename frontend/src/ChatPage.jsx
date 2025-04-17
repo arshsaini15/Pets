@@ -213,6 +213,7 @@ const ChatPage = () => {
                 )}
             </div>
 
+            {/* // get messages */}
             <div className="messages">
                 {Object.entries(groupedMessages).length > 0 ? (
                     Object.entries(groupedMessages).map(([date, dayMessages]) => (
@@ -293,6 +294,8 @@ const ChatPage = () => {
                         </button>
                     </div>
                 )}
+
+
     
                 <div className="input-controls">
                     <input
