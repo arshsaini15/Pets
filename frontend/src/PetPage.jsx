@@ -9,6 +9,7 @@ const PetPage = () => {
   const [loading, setLoading] = useState(true)
   const [locationError, setLocationError] = useState(null)
   const [showNearby, setShowNearby] = useState(false)
+  const [searchSpecies, setSearchSpecies] = useState('')
   const token = localStorage.getItem('token')
   const navigate = useNavigate()
 
@@ -84,6 +85,23 @@ const PetPage = () => {
     navigate(`/pets/${petId}`)
   }
 
+  const handleSearchChange = (e) => {
+    setSearchSpecies(e.target.value)
+  }
+
+  // Filter pets ONLY by species, or show all if search is empty
+  const filteredPets = showNearby
+    ? searchSpecies.trim() === '' 
+      ? nearbyPets
+      : nearbyPets.filter(pet => 
+          pet.species && pet.species.toLowerCase().includes(searchSpecies.toLowerCase())
+        )
+    : searchSpecies.trim() === '' 
+      ? pets 
+      : pets.filter(pet => 
+          pet.species && pet.species.toLowerCase().includes(searchSpecies.toLowerCase())
+        )
+
   return (
     <div className="pet-page-container">
       <div className="top-buttons">
@@ -95,16 +113,27 @@ const PetPage = () => {
         </button>
       </div>
 
+      <div className="search-container">
+        <input
+          type="text"
+          className="search-input"
+          placeholder="Search by species only (dog, cat, bird...)"
+          value={searchSpecies}
+          onChange={handleSearchChange}
+        />
+      </div>
+
       {locationError && <div className="error-message">{locationError}</div>}
       {loading && <div className="loading-message">Loading...</div>}
 
       {showNearby ? (
-        nearbyPets.length > 0 ? (
+        filteredPets.length > 0 ? (
           <div className="pet-grid">
-            {nearbyPets.map((pet) => (
+            {filteredPets.map((pet) => (
               <div key={pet._id} className="pet-item" onClick={() => handlePetClick(pet._id)}>
                 <img src={pet.imageUrl || 'default-image-url.jpg'} alt={pet.name} className="pet-thumbnail" />
                 <h3 className="pet-title">{pet.name}</h3>
+                <p className="pet-type">{pet.species || 'Unknown species'}</p>
                 <p className="pet-location">{pet.location?.address || 'Location not available'}</p>
                 <button
                   className="wishlist-button"
@@ -119,15 +148,17 @@ const PetPage = () => {
             ))}
           </div>
         ) : (
-          <div className="no-pets-message">No nearby pets found.</div>
+          <div className="no-pets-message">No pets of this species found.</div>
         )
       ) : (
         <div className="pet-grid">
-          {pets.length > 0 ? (
-            pets.map((pet) => (
+          {filteredPets.length > 0 ? (
+            filteredPets.map((pet) => (
               <div key={pet._id} className="pet-item" onClick={() => handlePetClick(pet._id)}>
                 <img src={pet.imageUrl || 'default-image-url.jpg'} alt={pet.name} className="pet-thumbnail" />
                 <h3 className="pet-title">{pet.name}</h3>
+                <p className="pet-type">{pet.species || 'Unknown species'}</p>
+                {pet.location?.address && <p className="pet-location">{pet.location.address}</p>}
                 <button
                   className="wishlist-button"
                   onClick={(e) => {
@@ -140,7 +171,7 @@ const PetPage = () => {
               </div>
             ))
           ) : (
-            <div className="no-pets-message">No pets found.</div>
+            <div className="no-pets-message">No pets of this species found.</div>
           )}
         </div>
       )}
