@@ -49,6 +49,18 @@ connectDB()
                     }
                 });
             });
+
+            socket.on("joinGroup", (groupId) => {
+                socket.join(groupId);
+            });
+
+            socket.on("leaveGroup", (groupId) => {
+                socket.leave(groupId);
+            });
+
+            socket.on("sendGroupMessage", (message) => {
+                io.to(message.groupId).emit("newGroupMessage", message);
+            });
         });
 
         const port = process.env.PORT;

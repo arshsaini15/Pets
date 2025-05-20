@@ -21,6 +21,8 @@ import PetPage from "./PetPage";
 import PetProfile from "./PetProfile";
 import WishList from "./WishList";
 import AddConnections from "./AddConnections"
+import GroupPage from "./Group"
+import GroupChatPage from "./GroupChatPage"
 
 function App() {
     const [loading, setLoading] = useState(true);
@@ -57,6 +59,8 @@ function App() {
                     <Route path="/pets/:petId" element={<PetProfile />} />
                     <Route path="/wishlist" element={<WishList />} />
                     <Route path="/addconnections" element={<AddConnections />} />
+                    <Route path="/create-group" element={<GroupPage />} />
+                    <Route path="/group/:groupId" element={<GroupChatPage />} />
                     <Route path="*" element={<Navigate to="/" />} />
                 </Routes>
             )}

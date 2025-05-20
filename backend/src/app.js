@@ -14,8 +14,6 @@ app.use(cors({
 app.use(express.json({limit: "16kb"}))
 app.use(express.urlencoded({extended: true, limit: "16kb"}))
 
-
-
 app.post('/test', (req, res) => {
     console.log('Request file:', req.file); // Log the file
     console.log('Request body:', req.body); // Log the body
@@ -75,6 +73,12 @@ import showCartRouter from './routes/showcart.routes.js'
 import razorPayRouter from './routes/razorpay.routes.js'
 import cryptoRouter from './routes/crypto.routes.js'
 
+// groups
+import groupRouter from './routes/create-group.routes.js'
+import fetchGroupsRouter from './routes/fetchgroups.routes.js'
+import getgroupdetailsRouter from './routes/groupdetails.router.js'
+import groupMessagesRouter from './routes/groupmessages.routes.js'
+
 // client
 app.use("/api/v1/users", userRouter)
 app.use("/api/v1/users", signinRouter)
@@ -128,5 +132,11 @@ app.use("/api/v1/cart", cryptoRouter)
 
 // product
 app.use("/api/v1/products", productDetailsRouter)
+
+// groups
+app.use("/api/v1/groups", groupRouter)
+app.use("/api/v1/groups", fetchGroupsRouter)
+app.use("/api/v1/groups", getgroupdetailsRouter)
+app.use("/api/v1/groups", groupMessagesRouter)
 
 export { app }
