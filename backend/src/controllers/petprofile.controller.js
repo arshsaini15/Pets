@@ -10,6 +10,7 @@ export const getPetProfile = asyncHandler(async (req, res) => {
     if (!pet) {
         return res.status(404).json({ message: 'Pet not found' });
     }
-  
+    console.log(pet);
+    
     res.status(200).json(pet)
 })

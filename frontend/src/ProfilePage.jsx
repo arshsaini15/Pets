@@ -110,7 +110,7 @@ const ProfilePage = () => {
                         </div>
                         <div className="bio">
                             {!showTextarea ? (
-                                <p>{bio || "He"}</p>
+                                <p>{bio || "Hey"}</p>
                             ) : (
                                 <textarea
                                     className="bio-textarea"

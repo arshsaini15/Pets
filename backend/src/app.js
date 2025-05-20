@@ -32,6 +32,7 @@ import connectUserRouter from './routes/connect.routes.js'
 import personProfileRouter from './routes/personprofile.routes.js'
 import editProfileRouter from './routes/editprofile.routes.js'
 import emailRouter from './routes/emailroutes.js'
+import showallusers from './routes/showallusers.routes.js'
 
 // admin
 import adminLoginRouter from './routes/adminlogin.routes.js'
@@ -84,6 +85,7 @@ app.use("/api/v1/users", connectUserRouter)
 app.use("/api/v1/users", personProfileRouter)
 app.use("/api/v1/users", editProfileRouter)
 app.use("/api/v1/users", emailRouter)
+app.use("/api/v1/allusers", showallusers)
 
 // admin
 app.use("/api/v1/admin", adminLoginRouter)

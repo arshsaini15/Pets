@@ -5,8 +5,10 @@ import './ItemPage.css';
 
 const ItemPage = () => {
     const [products, setProducts] = useState([]);
+    const [filteredProducts, setFilteredProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -14,6 +16,7 @@ const ItemPage = () => {
             try {
                 const response = await axios.get("http://localhost:8000/api/v1/admin/products/fetch")
                 setProducts(response.data)
+                setFilteredProducts(response.data)
                 setLoading(false)
             } catch (err) {
                 console.error("Error fetching products:", err)
@@ -25,20 +28,59 @@ const ItemPage = () => {
         fetchProducts()
     }, [])
 
+    // Handle search input changes
+    const handleSearch = (e) => {
+        const term = e.target.value.toLowerCase();
+        setSearchTerm(term);
+        
+        if (term.trim() === '') {
+            setFilteredProducts(products);
+        } else {
+            const filtered = products.filter(product => 
+                product.name.toLowerCase().includes(term) || 
+                product.brand.toLowerCase().includes(term)
+            );
+            setFilteredProducts(filtered);
+        }
+    }
+
     return (
         <div>
             <div className="products-container">
                 <h1>Available Products</h1>
-                <button className="cart-btn" onClick={() => navigate('/cart')}>
-                    🛒 Go to Cart
-                </button>
+                <div className="top-section">
+                    <div className="search-container">
+                        <input
+                            type="text"
+                            placeholder="Search by brand or product name..."
+                            value={searchTerm}
+                            onChange={handleSearch}
+                            className="search-input"
+                        />
+                        {searchTerm && (
+                            <button 
+                                className="clear-search" 
+                                onClick={() => {
+                                    setSearchTerm('');
+                                    setFilteredProducts(products);
+                                }}
+                            >
+                                ✕
+                            </button>
+                        )}
+                    </div>
+                    <button className="cart-btn" onClick={() => navigate('/cart')}>
+                        🛒 Go to Cart
+                    </button>
+                </div>
+
                 {loading ? (
                     <p>Loading products...</p>
                 ) : error ? (
                     <p>{error}</p>
-                ) : products.length > 0 ? (
+                ) : filteredProducts.length > 0 ? (
                     <div className="product-list">
-                        {products.map(product => (
+                        {filteredProducts.map(product => (
                             <div 
                                 key={product._id} 
                                 className="product-item" 
@@ -52,7 +94,7 @@ const ItemPage = () => {
                         ))}
                     </div>
                 ) : (
-                    <p>No products available.</p>
+                    <p className="no-results">No products found matching "{searchTerm}".</p>
                 )}
             </div>
         </div>
