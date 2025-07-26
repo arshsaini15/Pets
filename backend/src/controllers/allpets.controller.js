@@ -3,7 +3,7 @@ import { asyncHandler } from '../utils/asyncHandler.js'
 
 export const allPets = asyncHandler(async (req, res) => {
         const userId = req.headers.userid;
-        const pets = await Pet.find({ owner: { $ne: userId } })
+        const pets = await Pet.find()
         .populate('owner', 'username')
         .sort({ name: 1 });
 

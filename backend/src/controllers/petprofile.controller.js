@@ -3,7 +3,7 @@ import { asyncHandler } from '../utils/asyncHandler.js'
 
 export const getPetProfile = asyncHandler(async (req, res) => {
     const { petId } = req.params
-  
+
     const pet = await Pet.findById(petId)
     .populate('owner', 'username')
 
